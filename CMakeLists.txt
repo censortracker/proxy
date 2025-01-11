@@ -26,7 +26,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt6::HttpServer
 )
 
-# Копируем xray и конфиг в каталог сборки
 if(UNIX AND NOT APPLE)
     set(XRAY_PLATFORM_DIR "linux")
 elseif(WIN32)
