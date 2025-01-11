@@ -5,6 +5,7 @@
 #include <QProcess>
 #include <QScopedPointer>
 #include <QJsonObject>
+#include <QTcpServer>
 
 class ProxyServer : public QObject
 {
@@ -32,4 +33,5 @@ private:
 
     QHttpServer m_server;
     QScopedPointer<QProcess> m_xrayProcess;
-}; 
+    QScopedPointer<QTcpServer> m_tcpServer;
+};

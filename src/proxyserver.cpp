@@ -10,6 +10,7 @@
 ProxyServer::ProxyServer(QObject *parent)
     : QObject(parent)
     , m_xrayProcess(nullptr)
+    , m_tcpServer(new QTcpServer(this))
 {
     setupRoutes();
 }
@@ -21,13 +22,14 @@ ProxyServer::~ProxyServer()
 
 bool ProxyServer::start(quint16 port)
 {
-    const auto serverPort = m_server.listen(QHostAddress::LocalHost, port);
-    if (!serverPort) {
+    if (!m_tcpServer->listen(QHostAddress::LocalHost, port))
+    {
         qDebug() << "Server failed to start!";
         return false;
     }
 
-    qDebug() << "Server is running on localhost:" << serverPort;
+    m_server.bind(m_tcpServer.data());
+    qDebug() << "Server is running on localhost:" << m_tcpServer->serverPort();
     qDebug() << "Available endpoints:";
     qDebug() << "  GET  /api/v1/config";
     qDebug() << "  POST /api/v1/config";
