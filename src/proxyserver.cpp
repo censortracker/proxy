@@ -43,6 +43,36 @@ void ProxyServer::stop()
     stopXrayProcess();
 }
 
+QString ProxyServer::getPlatformName() const
+{
+#if defined(Q_OS_WIN)
+    return "windows";
+#elif defined(Q_OS_MACOS)
+    return "macos";
+#elif defined(Q_OS_LINUX)
+    return "linux";
+#else
+    #error "Unsupported platform"
+#endif
+}
+
+QString ProxyServer::getXrayExecutablePath() const
+{
+    QString appDir = QCoreApplication::applicationDirPath();
+    QString xrayDir = QDir(appDir).filePath("xray-prebuilt/" + getPlatformName());
+    
+#if defined(Q_OS_WIN)
+    return QDir(xrayDir).filePath("xray.exe");
+#else
+    return QDir(xrayDir).filePath("xray");
+#endif
+}
+
+QStringList ProxyServer::getXrayArguments(const QString &configPath) const
+{
+    return QStringList() << "-c" << configPath << "-format=json";
+}
+
 bool ProxyServer::startXrayProcess()
 {
     if (!m_xrayProcess.isNull() && m_xrayProcess->state() == QProcess::Running) {
@@ -50,8 +80,7 @@ bool ProxyServer::startXrayProcess()
         return true;
     }
 
-    QString appDir = QCoreApplication::applicationDirPath();
-    QString xrayPath = QDir(appDir).filePath("xray-prebuilt/linux/xray");
+    QString xrayPath = getXrayExecutablePath();
     QString configPath = getConfigPath();
 
     if (!QFile::exists(xrayPath)) {
@@ -65,9 +94,9 @@ bool ProxyServer::startXrayProcess()
     }
 
     m_xrayProcess.reset(new QProcess(this));
-    m_xrayProcess->setWorkingDirectory(appDir);
+    m_xrayProcess->setWorkingDirectory(QFileInfo(xrayPath).dir().absolutePath());
     m_xrayProcess->setProgram(xrayPath);
-    m_xrayProcess->setArguments(QStringList() << "-c" << configPath << "-format=json");
+    m_xrayProcess->setArguments(getXrayArguments(configPath));
 
     m_xrayProcess->start();
     if (!m_xrayProcess->waitForStarted()) {

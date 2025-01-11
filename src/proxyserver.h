@@ -24,6 +24,11 @@ private:
     QString getConfigPath() const;
     QJsonObject readConfig() const;
     bool writeConfig(const QJsonObject &config);
+    
+    // Platform-specific methods
+    QString getXrayExecutablePath() const;
+    QStringList getXrayArguments(const QString &configPath) const;
+    QString getPlatformName() const;
 
     QHttpServer m_server;
     QScopedPointer<QProcess> m_xrayProcess;
