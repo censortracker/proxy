@@ -15,7 +15,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 if(UNIX AND NOT APPLE)
     set(XRAY_PLATFORM_DIR "linux")
 elseif(WIN32)
-    set(XRAY_PLATFORM_DIR "windows/xray")
+    set(XRAY_PLATFORM_DIR "windows")
 elseif(APPLE)
     set(XRAY_PLATFORM_DIR "macos")
 endif()
