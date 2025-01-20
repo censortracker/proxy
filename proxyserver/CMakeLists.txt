@@ -1,15 +1,21 @@
 project(proxyserver)
 
+qt_add_resources(RESOURCES resources.qrc)
+
 add_executable(${PROJECT_NAME}
     main.cpp
     proxyserver.h
     proxyserver.cpp
+    trayicon.h
+    trayicon.cpp
+    ${RESOURCES}
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt6::Core
     Qt6::Network
     Qt6::HttpServer
+    Qt6::Widgets
 )
 
 if(UNIX AND NOT APPLE)

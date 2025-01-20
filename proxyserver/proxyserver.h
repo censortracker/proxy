@@ -6,6 +6,7 @@
 #include <QScopedPointer>
 #include <QJsonObject>
 #include <QTcpServer>
+#include "trayicon.h"
 
 class ProxyServer : public QObject
 {
@@ -18,6 +19,10 @@ public:
     bool start(quint16 port = 8080);
     void stop();
 
+private slots:
+    void quit();
+    void showSettings();
+
 private:
     void setupRoutes();
     bool startXrayProcess();
@@ -26,7 +31,6 @@ private:
     QJsonObject readConfig() const;
     bool writeConfig(const QJsonObject &config);
     
-    // Platform-specific methods
     QString getXrayExecutablePath() const;
     QStringList getXrayArguments(const QString &configPath) const;
     QString getPlatformName() const;
@@ -34,4 +38,5 @@ private:
     QHttpServer m_server;
     QScopedPointer<QProcess> m_xrayProcess;
     QScopedPointer<QTcpServer> m_tcpServer;
+    TrayIcon m_trayIcon;
 };

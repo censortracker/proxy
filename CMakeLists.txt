@@ -9,7 +9,12 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Network HttpServer)
+find_package(Qt6 REQUIRED COMPONENTS 
+    Core 
+    Network 
+    HttpServer 
+    Widgets
+)
 
 # Add subprojects
 add_subdirectory(proxyserver)

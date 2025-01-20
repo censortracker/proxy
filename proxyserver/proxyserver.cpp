@@ -2,17 +2,20 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QDateTime>
-#include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
 #include <QStandardPaths>
+#include <QApplication>
 
 ProxyServer::ProxyServer(QObject *parent)
     : QObject(parent)
     , m_xrayProcess(nullptr)
     , m_tcpServer(new QTcpServer(this))
+    , m_trayIcon(this)
 {
     setupRoutes();
+    connect(&m_trayIcon, &TrayIcon::settingsRequested, this, &ProxyServer::showSettings);
+    connect(&m_trayIcon, &TrayIcon::quitRequested, this, &ProxyServer::quit);
 }
 
 ProxyServer::~ProxyServer()
@@ -108,6 +111,7 @@ bool ProxyServer::startXrayProcess()
         return false;
     }
 
+    m_trayIcon.updateStatus(true);
     qDebug() << "Xray process started successfully";
     return true;
 }
@@ -122,6 +126,7 @@ void ProxyServer::stopXrayProcess()
             }
         }
         m_xrayProcess.reset();
+        m_trayIcon.updateStatus(false);
         qDebug() << "Xray process stopped";
     }
 }
@@ -267,4 +272,16 @@ void ProxyServer::setupRoutes()
         
         return response;
     });
+}
+
+void ProxyServer::quit()
+{
+    stop();
+    QApplication::quit();
+}
+
+void ProxyServer::showSettings()
+{
+    // TODO: Implement settings window
+    qDebug() << "Show settings";
 } 
