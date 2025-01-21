@@ -13,7 +13,7 @@ set PROJECT_DIR=%cd%
 set SCRIPT_DIR=%PROJECT_DIR:"=%\deploy
 
 set WORK_DIR=%SCRIPT_DIR:"=%\build_%BUILD_ARCH:"=%
-set APP_NAME=DesktopProxy
+set APP_NAME=proxyserver
 set APP_FILENAME=%APP_NAME:"=%.exe
 set OUT_APP_DIR=%WORK_DIR:"=%\release
 set PREBILT_DIR=%PROJECT_DIR:"=%\xray-prebuilt\windows
@@ -51,6 +51,9 @@ echo "Deploying..."
 mkdir "%OUT_APP_DIR%"
 copy "%WORK_DIR%\proxyserver\Release\%APP_FILENAME%" "%OUT_APP_DIR%"
 
+echo "Deploying Qt dependencies..."
+"%QT_BIN_DIR:"=%\windeployqt" --release --force --no-translations "%OUT_APP_DIR:"=%\%APP_FILENAME:"=%"
+
 echo "Copying prebuilt data..."
 xcopy %PREBILT_DIR%\*    %OUT_APP_DIR%  /s /e /y /i /f
 
@@ -58,4 +61,4 @@ echo "Deploy finished, content:"
 dir %OUT_APP_DIR%
 
 echo "Finished, see %OUT_APP_DIR%"
-exit 0 
+exit 0
