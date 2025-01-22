@@ -63,8 +63,7 @@ QString ProxyServer::getPlatformName() const
 
 QString ProxyServer::getXrayExecutablePath() const
 {
-    QString appDir = QCoreApplication::applicationDirPath();
-    QString xrayDir = QDir(appDir).filePath("xray-prebuilt/");
+    QString xrayDir = QCoreApplication::applicationDirPath();
     
 #if defined(Q_OS_WIN)
     return QDir(xrayDir).filePath("xray.exe");
