@@ -4,9 +4,13 @@ CHCP 1252
 
 REM %VAR:"=% mean dequoted %VAR%
 
+set QT_BIN_DIR=C:\Qt\6.8.1\msvc2022_64\bin
+set QIF_BIN_DIR=C:\Qt\Tools\QtInstallerFramework\bin
+set BUILD_ARCH=64
 set PATH=%QT_BIN_DIR:"=%;%PATH%
 
 echo "Using Qt in %QT_BIN_DIR%"
+echo "Using QIF in %QIF_BIN_DIR%"
 
 REM Hold on to current directory
 set PROJECT_DIR=%cd%
@@ -15,8 +19,10 @@ set SCRIPT_DIR=%PROJECT_DIR:"=%\deploy
 set WORK_DIR=%SCRIPT_DIR:"=%\build_%BUILD_ARCH:"=%
 set APP_NAME=proxyserver
 set APP_FILENAME=%APP_NAME:"=%.exe
+set APP_DOMAIN=org.censortracker.proxyserver
 set OUT_APP_DIR=%WORK_DIR:"=%\release
 set PREBILT_DIR=%PROJECT_DIR:"=%\xray-prebuilt\windows
+set INSTALLER_DATA_DIR=%WORK_DIR:"=%\installer\packages\%APP_DOMAIN:"=%\data
 set TARGET_FILENAME=%PROJECT_DIR:"=%\%APP_NAME:"=%_x%BUILD_ARCH:"=%.exe
 
 echo "Environment:"
@@ -26,6 +32,7 @@ echo "PROJECT_DIR:          %PROJECT_DIR%"
 echo "SCRIPT_DIR:           %SCRIPT_DIR%"
 echo "OUT_APP_DIR:          %OUT_APP_DIR%"
 echo "PREBILT_DIR:          %PREBILT_DIR%"
+echo "INSTALLER_DATA_DIR:   %INSTALLER_DATA_DIR%"
 echo "TARGET_FILENAME:      %TARGET_FILENAME%"
 
 echo "Cleanup..."
@@ -60,5 +67,20 @@ xcopy %PREBILT_DIR%\*    %OUT_APP_DIR%  /s /e /y /i /f
 echo "Deploy finished, content:"
 dir %OUT_APP_DIR%
 
-echo "Finished, see %OUT_APP_DIR%"
+echo "Creating installer..."
+cd %SCRIPT_DIR%
+xcopy %SCRIPT_DIR:"=%\installer  %WORK_DIR:"=%\installer /s /e /y /i /f
+mkdir %INSTALLER_DATA_DIR%
+
+cd %OUT_APP_DIR%
+echo "Compressing data..."
+"%QIF_BIN_DIR:"=%\archivegen" -c 9 %INSTALLER_DATA_DIR:"=%\%APP_NAME:"=%.7z .
+
+cd "%WORK_DIR:"=%\installer"
+echo "Building installer..."
+"%QIF_BIN_DIR:"=%\binarycreator" --offline-only -v -c config\windows.xml -p packages -f %TARGET_FILENAME%
+
+timeout 5
+
+echo "Finished, see %TARGET_FILENAME%"
 exit 0
