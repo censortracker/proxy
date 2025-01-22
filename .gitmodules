@@ -1,0 +1,3 @@
+[submodule "proxyserver/xray-serialization"]
+	path = proxyserver/xray-serialization
+	url = git@github.com:amnezia-vpn/xray-serialization.git
