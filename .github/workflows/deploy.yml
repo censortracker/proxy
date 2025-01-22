@@ -31,7 +31,7 @@ jobs:
         host: 'windows'
         target: 'desktop'
         arch: 'win64_msvc2019_64'
-        modules: 'qthttpserver'
+        modules: 'qthttpserver qtwebsockets'
         dir: ${{ runner.temp }}
         setup-python: 'true'
         tools: 'tools_ifw'
