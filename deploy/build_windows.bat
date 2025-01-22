@@ -4,9 +4,6 @@ CHCP 1252
 
 REM %VAR:"=% mean dequoted %VAR%
 
-set QT_BIN_DIR=C:\Qt\6.8.1\msvc2022_64\bin
-set QIF_BIN_DIR=C:\Qt\Tools\QtInstallerFramework\bin
-set BUILD_ARCH=64
 set PATH=%QT_BIN_DIR:"=%;%PATH%
 
 echo "Using Qt in %QT_BIN_DIR%"
