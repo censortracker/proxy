@@ -53,13 +53,10 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 echo "Deploying..."
 
 mkdir "%OUT_APP_DIR%"
-copy "%WORK_DIR%\proxyserver\Release\%APP_FILENAME%" "%OUT_APP_DIR%"
+copy "%WORK_DIR%\proxyserver\Release\*.*" "%OUT_APP_DIR%"
 
 echo "Deploying Qt dependencies..."
 "%QT_BIN_DIR:"=%\windeployqt" --release --force --no-translations "%OUT_APP_DIR:"=%\%APP_FILENAME:"=%"
-
-echo "Copying prebuilt data..."
-xcopy %PREBILT_DIR%\*    %OUT_APP_DIR%  /s /e /y /i /f
 
 echo "Deploy finished, content:"
 dir %OUT_APP_DIR%
