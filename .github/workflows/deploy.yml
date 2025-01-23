@@ -20,6 +20,9 @@ jobs:
     steps:
     - name: 'Get sources'
       uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+        fetch-depth: 1
 
     - name: 'Setup ccache'
       uses: hendrikmuhs/ccache-action@v1.2
