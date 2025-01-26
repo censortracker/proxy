@@ -1,5 +1,6 @@
 #include "proxyserver.h"
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QDateTime>
 #include <QDir>
@@ -233,8 +234,21 @@ void ProxyServer::setupRoutes()
     m_server.route("/api/v1/up", QHttpServerRequest::Method::Post, [this] {
         QJsonObject response;
         if (startXrayProcess()) {
+            QJsonObject config = readConfig();
+            
             response["status"] = "success";
             response["message"] = "Xray process started successfully";
+            // Try to get port from inbounds configuration
+            if (config.contains("inbounds") && config["inbounds"].isArray()) {
+                QJsonArray inbounds = config["inbounds"].toArray();
+                if (!inbounds.isEmpty() && inbounds[0].isObject()) {
+                    QJsonObject firstInbound = inbounds[0].toObject();
+                    if (firstInbound.contains("port")) {
+                        response["xray_port"] = firstInbound["port"].toInt();
+                    }
+                }
+            }
+            
         } else {
             response["status"] = "error";
             response["message"] = "Failed to start xray process";
@@ -261,6 +275,17 @@ void ProxyServer::setupRoutes()
         if (isRunning) {
             response["xray_pid"] = (qint64)m_xrayProcess->processId();
             response["xray_state"] = "running";
+            
+            QJsonObject config = readConfig();
+            if (config.contains("inbounds") && config["inbounds"].isArray()) {
+                QJsonArray inbounds = config["inbounds"].toArray();
+                if (!inbounds.isEmpty() && inbounds[0].isObject()) {
+                    QJsonObject firstInbound = inbounds[0].toObject();
+                    if (firstInbound.contains("port")) {
+                        response["xray_port"] = firstInbound["port"].toInt();
+                    }
+                }
+            }
             
             if (m_xrayProcess->error() != QProcess::UnknownError) {
                 response["xray_error"] = m_xrayProcess->errorString();
