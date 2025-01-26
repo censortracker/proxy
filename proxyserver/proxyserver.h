@@ -30,6 +30,8 @@ private:
     QString getConfigPath() const;
     QJsonObject readConfig() const;
     bool writeConfig(const QJsonObject &config);
+    QJsonObject addInbounds(const QJsonObject &config);
+    QJsonObject deserializeConfig(const QString &configStr);
     
     QString getXrayExecutablePath() const;
     QStringList getXrayArguments(const QString &configPath) const;

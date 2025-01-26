@@ -1,4 +1,5 @@
 #include "proxyserver.h"
+#include "serialization.h"
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -204,21 +205,21 @@ void ProxyServer::setupRoutes()
     m_server.route("/api/v1/config", QHttpServerRequest::Method::Post, [this] (const QHttpServerRequest &request) {
         QJsonObject response;
         
-        QJsonParseError parseError;
-        QJsonDocument doc = QJsonDocument::fromJson(request.body(), &parseError);
-        
-        if (parseError.error != QJsonParseError::NoError) {
+        QString configStr = QString::fromUtf8(request.body());
+        if (configStr.isEmpty()) {
             response["status"] = "error";
-            response["message"] = "Invalid JSON: " + parseError.errorString();
+            response["message"] = "Config string cannot be empty";
             return response;
         }
         
-        QJsonObject config = doc.object();
+        QJsonObject config = deserializeConfig(configStr);
         if (config.isEmpty()) {
             response["status"] = "error";
-            response["message"] = "Config cannot be empty";
+            response["message"] = "Failed to deserialize config string";
             return response;
         }
+        
+        config = addInbounds(config);
         
         if (writeConfig(config)) {
             response["status"] = "success";
@@ -308,4 +309,54 @@ void ProxyServer::showSettings()
 {
     // TODO: Implement settings window
     qDebug() << "Show settings";
-} 
+}
+
+QJsonObject ProxyServer::addInbounds(const QJsonObject &config)
+{
+    QJsonObject resultConfig = config;
+    
+    QJsonArray inbounds;
+    QJsonObject socksInbound;
+    socksInbound["listen"] = "127.0.0.1";
+    socksInbound["port"] = 10808;
+    socksInbound["protocol"] = "socks";
+    
+    QJsonObject settings;
+    settings["udp"] = true;
+    socksInbound["settings"] = settings;
+    
+    inbounds.append(socksInbound);
+    resultConfig["inbounds"] = inbounds;
+    
+    return resultConfig;
+}
+
+QJsonObject ProxyServer::deserializeConfig(const QString &configStr)
+{
+    QJsonObject outConfig;
+    
+    QString prefix;
+    QString errormsg;
+    
+    if (configStr.startsWith("vless://")) {
+        outConfig = amnezia::serialization::vless::Deserialize(configStr, &prefix, &errormsg);
+    }
+
+    if (configStr.startsWith("vmess://") && configStr.contains("@")) {
+        outConfig = amnezia::serialization::vmess_new::Deserialize(configStr, &prefix, &errormsg);
+    }
+
+    if (configStr.startsWith("vmess://")) {
+        outConfig = amnezia::serialization::vmess::Deserialize(configStr, &prefix, &errormsg);
+    }
+
+    if (configStr.startsWith("trojan://")) {
+        outConfig = amnezia::serialization::trojan::Deserialize(configStr, &prefix, &errormsg);
+    }
+
+    if (configStr.startsWith("ss://") && !configStr.contains("plugin=")) {
+        outConfig = amnezia::serialization::ss::Deserialize(configStr, &prefix, &errormsg);
+    }
+
+    return outConfig;
+}
