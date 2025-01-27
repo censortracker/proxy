@@ -1,11 +1,11 @@
 #pragma once
 
 #include <QObject>
-#include <QHttpServer>
-#include <QTcpServer>
 #include <QScopedPointer>
+#include <QSharedPointer>
 #include "trayicon.h"
 #include "proxyservice.h"
+#include "httpapi.h"
 
 class ProxyServer : public QObject
 {
@@ -23,12 +23,10 @@ private slots:
     void showSettings();
 
 private:
-    void setupRoutes();
     bool startXrayProcess();
     void stopXrayProcess();
 
-    QHttpServer m_server;
-    QScopedPointer<QTcpServer> m_tcpServer;
+    QScopedPointer<HttpApi> m_api;
     TrayIcon m_trayIcon;
-    ProxyService m_service;
+    QSharedPointer<ProxyService> m_service;
 };

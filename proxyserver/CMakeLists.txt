@@ -17,6 +17,8 @@ set(SOURCES
     iproxyservice.h
     proxyservice.cpp
     proxyservice.h
+    httpapi.cpp
+    httpapi.h
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCES})
