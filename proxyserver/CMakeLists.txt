@@ -4,14 +4,17 @@ add_subdirectory(xray-serialization)
 
 qt_add_resources(RESOURCES resources.qrc)
 
-add_executable(${PROJECT_NAME}
+set(SOURCES
     main.cpp
-    proxyserver.h
     proxyserver.cpp
-    trayicon.h
+    proxyserver.h
     trayicon.cpp
-    ${RESOURCES}
+    trayicon.h
+    configmanager.cpp
+    configmanager.h
 )
+
+add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt6::Core

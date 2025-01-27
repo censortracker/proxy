@@ -7,6 +7,7 @@
 #include <QJsonObject>
 #include <QTcpServer>
 #include "trayicon.h"
+#include "configmanager.h"
 
 class ProxyServer : public QObject
 {
@@ -27,12 +28,6 @@ private:
     void setupRoutes();
     bool startXrayProcess();
     void stopXrayProcess();
-    QString getConfigPath() const;
-    QJsonObject readConfig() const;
-    bool writeConfig(const QJsonObject &config);
-    QJsonObject addInbounds(const QJsonObject &config);
-    QJsonObject deserializeConfig(const QString &configStr);
-    
     QString getXrayExecutablePath() const;
     QStringList getXrayArguments(const QString &configPath) const;
     QString getPlatformName() const;
@@ -41,4 +36,5 @@ private:
     QScopedPointer<QProcess> m_xrayProcess;
     QScopedPointer<QTcpServer> m_tcpServer;
     TrayIcon m_trayIcon;
+    ConfigManager m_configManager;
 };

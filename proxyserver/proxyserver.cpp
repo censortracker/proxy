@@ -1,12 +1,10 @@
 #include "proxyserver.h"
-#include "serialization.h"
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
-#include <QStandardPaths>
 #include <QApplication>
 
 ProxyServer::ProxyServer(QObject *parent)
@@ -43,7 +41,7 @@ bool ProxyServer::start(quint16 port)
     qDebug() << "  GET  /api/v1/ping";
 
     // Auto-start Xray if config exists
-    QJsonObject config = readConfig();
+    QJsonObject config = m_configManager.readConfig();
     if (!config.isEmpty()) {
         startXrayProcess();
     } else {
@@ -95,7 +93,7 @@ bool ProxyServer::startXrayProcess()
     }
 
     QString xrayPath = getXrayExecutablePath();
-    QString configPath = getConfigPath();
+    QString configPath = m_configManager.getConfigPath();
 
     if (!QFile::exists(xrayPath)) {
         qDebug() << "Xray binary not found at:" << xrayPath;
@@ -140,63 +138,10 @@ void ProxyServer::stopXrayProcess()
     }
 }
 
-QString ProxyServer::getConfigPath() const
-{
-    QString configDir = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
-    QDir().mkpath(configDir);
-    return QDir(configDir).filePath("xray-config.json");
-}
-
-QJsonObject ProxyServer::readConfig() const
-{
-    QString configPath = getConfigPath();
-    QFile file(configPath);
-    
-    if (!file.exists()) {
-        qDebug() << "Config file not found at:" << configPath;
-        return QJsonObject();
-    }
-    
-    if (!file.open(QIODevice::ReadOnly)) {
-        qDebug() << "Failed to open config file:" << file.errorString();
-        return QJsonObject();
-    }
-    
-    QByteArray configData = file.readAll();
-    file.close();
-    
-    QJsonParseError parseError;
-    QJsonDocument doc = QJsonDocument::fromJson(configData, &parseError);
-    
-    if (parseError.error != QJsonParseError::NoError) {
-        qDebug() << "Failed to parse config file:" << parseError.errorString();
-        return QJsonObject();
-    }
-    
-    return doc.object();
-}
-
-bool ProxyServer::writeConfig(const QJsonObject &config)
-{
-    QString configPath = getConfigPath();
-    QFile file(configPath);
-    
-    if (!file.open(QIODevice::WriteOnly)) {
-        qDebug() << "Failed to open config file for writing:" << file.errorString();
-        return false;
-    }
-    
-    QJsonDocument doc(config);
-    file.write(doc.toJson(QJsonDocument::Indented));
-    file.close();
-    
-    return true;
-}
-
 void ProxyServer::setupRoutes()
 {
     m_server.route("/api/v1/config", QHttpServerRequest::Method::Get, [this] {
-        QJsonObject config = readConfig();
+        QJsonObject config = m_configManager.readConfig();
         QJsonObject response;
         
         if (config.isEmpty()) {
@@ -242,16 +187,16 @@ void ProxyServer::setupRoutes()
             return response;
         }
         
-        QJsonObject config = deserializeConfig(configStr);
+        QJsonObject config = m_configManager.deserializeConfig(configStr);
         if (config.isEmpty()) {
             response["status"] = "error";
             response["message"] = "Failed to deserialize config string";
             return response;
         }
         
-        config = addInbounds(config);
+        config = m_configManager.addInbounds(config);
         
-        if (writeConfig(config)) {
+        if (m_configManager.writeConfig(config)) {
             response["status"] = "success";
             response["message"] = "Config saved successfully";
         } else {
@@ -265,7 +210,7 @@ void ProxyServer::setupRoutes()
     m_server.route("/api/v1/up", QHttpServerRequest::Method::Post, [this] {
         QJsonObject response;
         if (startXrayProcess()) {
-            QJsonObject config = readConfig();
+            QJsonObject config = m_configManager.readConfig();
             
             response["status"] = "success";
             response["message"] = "Xray process started successfully";
@@ -307,7 +252,7 @@ void ProxyServer::setupRoutes()
             response["xray_pid"] = (qint64)m_xrayProcess->processId();
             response["xray_state"] = "running";
             
-            QJsonObject config = readConfig();
+            QJsonObject config = m_configManager.readConfig();
             if (config.contains("inbounds") && config["inbounds"].isArray()) {
                 QJsonArray inbounds = config["inbounds"].toArray();
                 if (!inbounds.isEmpty() && inbounds[0].isObject()) {
@@ -339,54 +284,4 @@ void ProxyServer::showSettings()
 {
     // TODO: Implement settings window
     qDebug() << "Show settings";
-}
-
-QJsonObject ProxyServer::addInbounds(const QJsonObject &config)
-{
-    QJsonObject resultConfig = config;
-    
-    QJsonArray inbounds;
-    QJsonObject socksInbound;
-    socksInbound["listen"] = "127.0.0.1";
-    socksInbound["port"] = 10808;
-    socksInbound["protocol"] = "socks";
-    
-    QJsonObject settings;
-    settings["udp"] = true;
-    socksInbound["settings"] = settings;
-    
-    inbounds.append(socksInbound);
-    resultConfig["inbounds"] = inbounds;
-    
-    return resultConfig;
-}
-
-QJsonObject ProxyServer::deserializeConfig(const QString &configStr)
-{
-    QJsonObject outConfig;
-    
-    QString prefix;
-    QString errormsg;
-    
-    if (configStr.startsWith("vless://")) {
-        outConfig = amnezia::serialization::vless::Deserialize(configStr, &prefix, &errormsg);
-    }
-
-    if (configStr.startsWith("vmess://") && configStr.contains("@")) {
-        outConfig = amnezia::serialization::vmess_new::Deserialize(configStr, &prefix, &errormsg);
-    }
-
-    if (configStr.startsWith("vmess://")) {
-        outConfig = amnezia::serialization::vmess::Deserialize(configStr, &prefix, &errormsg);
-    }
-
-    if (configStr.startsWith("trojan://")) {
-        outConfig = amnezia::serialization::trojan::Deserialize(configStr, &prefix, &errormsg);
-    }
-
-    if (configStr.startsWith("ss://") && !configStr.contains("plugin=")) {
-        outConfig = amnezia::serialization::ss::Deserialize(configStr, &prefix, &errormsg);
-    }
-
-    return outConfig;
 }
