@@ -228,7 +228,7 @@ void ProxyServer::setupRoutes()
             return response;
         }
         
-        QJsonArray configArray = doc.object()["configs"].toArray();
+        QJsonArray configArray = doc.object()["config"].toArray();
         if (configArray.isEmpty()) {
             response["status"] = "error";
             response["message"] = "Config array cannot be empty";
