@@ -42,6 +42,14 @@ bool ProxyServer::start(quint16 port)
     qDebug() << "  POST /api/v1/down";
     qDebug() << "  GET  /api/v1/ping";
 
+    // Auto-start Xray if config exists
+    QJsonObject config = readConfig();
+    if (!config.isEmpty()) {
+        startXrayProcess();
+    } else {
+        qDebug() << "No config found, Xray will not start automatically";
+    }
+
     return true;
 }
 
