@@ -205,7 +205,29 @@ void ProxyServer::setupRoutes()
     m_server.route("/api/v1/config", QHttpServerRequest::Method::Post, [this] (const QHttpServerRequest &request) {
         QJsonObject response;
         
-        QString configStr = QString::fromUtf8(request.body());
+        QJsonParseError parseError;
+        QJsonDocument doc = QJsonDocument::fromJson(request.body(), &parseError);
+        
+        if (parseError.error != QJsonParseError::NoError) {
+            response["status"] = "error";
+            response["message"] = "Invalid JSON format";
+            return response;
+        }
+        
+        if (!doc.isObject() || !doc.object().contains("config") || !doc.object()["config"].isArray()) {
+            response["status"] = "error";
+            response["message"] = "Request must contain 'config' array field";
+            return response;
+        }
+        
+        QJsonArray configArray = doc.object()["configs"].toArray();
+        if (configArray.isEmpty()) {
+            response["status"] = "error";
+            response["message"] = "Config array cannot be empty";
+            return response;
+        }
+        
+        QString configStr = configArray[0].toString();
         if (configStr.isEmpty()) {
             response["status"] = "error";
             response["message"] = "Config string cannot be empty";
