@@ -5,20 +5,20 @@ add_subdirectory(xray-serialization)
 qt_add_resources(RESOURCES resources.qrc)
 
 set(SOURCES
-    main.cpp
-    proxyserver.cpp
-    proxyserver.h
-    trayicon.cpp
-    trayicon.h
-    configmanager.cpp
-    configmanager.h
-    xraycontroller.cpp
-    xraycontroller.h
-    iproxyservice.h
-    proxyservice.cpp
-    proxyservice.h
-    httpapi.cpp
-    httpapi.h
+    src/main.cpp
+    src/proxyserver.cpp
+    src/proxyserver.h
+    src/trayicon.cpp
+    src/trayicon.h
+    src/configmanager.cpp
+    src/configmanager.h
+    src/xraycontroller.cpp
+    src/xraycontroller.h
+    src/iproxyservice.h
+    src/proxyservice.cpp
+    src/proxyservice.h
+    src/httpapi.cpp
+    src/httpapi.h
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCES})
