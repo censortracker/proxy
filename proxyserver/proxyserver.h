@@ -2,13 +2,10 @@
 
 #include <QObject>
 #include <QHttpServer>
-#include <QProcess>
-#include <QScopedPointer>
-#include <QJsonObject>
 #include <QTcpServer>
+#include <QScopedPointer>
 #include "trayicon.h"
-#include "configmanager.h"
-#include "xraycontroller.h"
+#include "proxyservice.h"
 
 class ProxyServer : public QObject
 {
@@ -31,9 +28,7 @@ private:
     void stopXrayProcess();
 
     QHttpServer m_server;
-    QScopedPointer<QProcess> m_xrayProcess;
     QScopedPointer<QTcpServer> m_tcpServer;
     TrayIcon m_trayIcon;
-    ConfigManager m_configManager;
-    XrayController m_xrayController;
+    ProxyService m_service;
 };

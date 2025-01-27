@@ -14,6 +14,9 @@ set(SOURCES
     configmanager.h
     xraycontroller.cpp
     xraycontroller.h
+    iproxyservice.h
+    proxyservice.cpp
+    proxyservice.h
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCES})

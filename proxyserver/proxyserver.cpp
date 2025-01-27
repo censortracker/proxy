@@ -9,9 +9,9 @@
 
 ProxyServer::ProxyServer(QObject *parent)
     : QObject(parent)
-    , m_xrayProcess(nullptr)
     , m_tcpServer(new QTcpServer(this))
     , m_trayIcon(this)
+    , m_service(this)
 {
     setupRoutes();
     connect(&m_trayIcon, &TrayIcon::settingsRequested, this, &ProxyServer::showSettings);
@@ -41,7 +41,7 @@ bool ProxyServer::start(quint16 port)
     qDebug() << "  GET  /api/v1/ping";
 
     // Auto-start Xray if config exists
-    QJsonObject config = m_configManager.readConfig();
+    QJsonObject config = m_service.getConfig();
     if (!config.isEmpty()) {
         startXrayProcess();
     } else {
@@ -58,7 +58,7 @@ void ProxyServer::stop()
 
 bool ProxyServer::startXrayProcess()
 {
-    bool success = m_xrayController.start(m_configManager.getConfigPath());
+    bool success = m_service.startXray();
     if (success) {
         m_trayIcon.updateStatus(true);
     }
@@ -67,14 +67,14 @@ bool ProxyServer::startXrayProcess()
 
 void ProxyServer::stopXrayProcess()
 {
-    m_xrayController.stop();
+    m_service.stopXray();
     m_trayIcon.updateStatus(false);
 }
 
 void ProxyServer::setupRoutes()
 {
     m_server.route("/api/v1/config", QHttpServerRequest::Method::Get, [this] {
-        QJsonObject config = m_configManager.readConfig();
+        QJsonObject config = m_service.getConfig();
         QJsonObject response;
         
         if (config.isEmpty()) {
@@ -120,16 +120,7 @@ void ProxyServer::setupRoutes()
             return response;
         }
         
-        QJsonObject config = m_configManager.deserializeConfig(configStr);
-        if (config.isEmpty()) {
-            response["status"] = "error";
-            response["message"] = "Failed to deserialize config string";
-            return response;
-        }
-        
-        config = m_configManager.addInbounds(config);
-        
-        if (m_configManager.writeConfig(config)) {
+        if (m_service.updateConfig(configStr)) {
             response["status"] = "success";
             response["message"] = "Config saved successfully";
         } else {
@@ -143,7 +134,7 @@ void ProxyServer::setupRoutes()
     m_server.route("/api/v1/up", QHttpServerRequest::Method::Post, [this] {
         QJsonObject response;
         if (startXrayProcess()) {
-            QJsonObject config = m_configManager.readConfig();
+            QJsonObject config = m_service.getConfig();
             
             response["status"] = "success";
             response["message"] = "Xray process started successfully";
@@ -178,14 +169,14 @@ void ProxyServer::setupRoutes()
         response["status"] = "success";
         response["timestamp"] = QDateTime::currentDateTime().toString(Qt::ISODate);
         
-        bool isXrayRunning = m_xrayController.isXrayRunning();
-        response["xray_running"] = isXrayRunning;
+        bool isRunning = m_service.isXrayRunning();
+        response["xray_running"] = isRunning;
         
-        if (isXrayRunning) {
-            response["xray_pid"] = m_xrayController.getProcessId();
+        if (isRunning) {
+            response["xray_pid"] = m_service.getXrayProcessId();
             response["xray_state"] = "running";
             
-            QJsonObject config = m_configManager.readConfig();
+            QJsonObject config = m_service.getConfig();
             if (config.contains("inbounds") && config["inbounds"].isArray()) {
                 QJsonArray inbounds = config["inbounds"].toArray();
                 if (!inbounds.isEmpty() && inbounds[0].isObject()) {
@@ -196,7 +187,7 @@ void ProxyServer::setupRoutes()
                 }
             }
             
-            QString error = m_xrayController.getError();
+            QString error = m_service.getXrayError();
             if (!error.isEmpty()) {
                 response["xray_error"] = error;
             }
