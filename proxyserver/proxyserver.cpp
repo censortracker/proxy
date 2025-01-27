@@ -56,86 +56,19 @@ void ProxyServer::stop()
     stopXrayProcess();
 }
 
-QString ProxyServer::getPlatformName() const
-{
-#if defined(Q_OS_WIN)
-    return "windows";
-#elif defined(Q_OS_MACOS)
-    return "macos";
-#elif defined(Q_OS_LINUX)
-    return "linux";
-#else
-    #error "Unsupported platform"
-#endif
-}
-
-QString ProxyServer::getXrayExecutablePath() const
-{
-    QString xrayDir = QCoreApplication::applicationDirPath();
-    
-#if defined(Q_OS_WIN)
-    return QDir(xrayDir).filePath("xray.exe");
-#else
-    return QDir(xrayDir).filePath("xray");
-#endif
-}
-
-QStringList ProxyServer::getXrayArguments(const QString &configPath) const
-{
-    return QStringList() << "-c" << configPath << "-format=json";
-}
-
 bool ProxyServer::startXrayProcess()
 {
-    if (!m_xrayProcess.isNull() && m_xrayProcess->state() == QProcess::Running) {
-        qDebug() << "Xray process is already running";
-        return true;
+    bool success = m_xrayController.start(m_configManager.getConfigPath());
+    if (success) {
+        m_trayIcon.updateStatus(true);
     }
-
-    QString xrayPath = getXrayExecutablePath();
-    QString configPath = m_configManager.getConfigPath();
-
-    if (!QFile::exists(xrayPath)) {
-        qDebug() << "Xray binary not found at:" << xrayPath;
-        return false;
-    }
-
-    if (!QFile::exists(configPath)) {
-        qDebug() << "Config file not found at:" << configPath;
-        return false;
-    }
-
-    m_xrayProcess.reset(new QProcess(this));
-    m_xrayProcess->setWorkingDirectory(QFileInfo(xrayPath).dir().absolutePath());
-    m_xrayProcess->setProgram(xrayPath);
-    m_xrayProcess->setArguments(getXrayArguments(configPath));
-
-    m_xrayProcess->start();
-    if (!m_xrayProcess->waitForStarted()) {
-        qDebug() << "Failed to start xray process";
-        qDebug() << "Error:" << m_xrayProcess->errorString();
-        m_xrayProcess.reset();
-        return false;
-    }
-
-    m_trayIcon.updateStatus(true);
-    qDebug() << "Xray process started successfully";
-    return true;
+    return success;
 }
 
 void ProxyServer::stopXrayProcess()
 {
-    if (!m_xrayProcess.isNull()) {
-        if (m_xrayProcess->state() == QProcess::Running) {
-            m_xrayProcess->terminate();
-            if (!m_xrayProcess->waitForFinished(5000)) {
-                m_xrayProcess->kill();
-            }
-        }
-        m_xrayProcess.reset();
-        m_trayIcon.updateStatus(false);
-        qDebug() << "Xray process stopped";
-    }
+    m_xrayController.stop();
+    m_trayIcon.updateStatus(false);
 }
 
 void ProxyServer::setupRoutes()
@@ -245,11 +178,11 @@ void ProxyServer::setupRoutes()
         response["status"] = "success";
         response["timestamp"] = QDateTime::currentDateTime().toString(Qt::ISODate);
         
-        bool isRunning = !m_xrayProcess.isNull() && m_xrayProcess->state() == QProcess::Running;
-        response["xray_running"] = isRunning;
+        bool isXrayRunning = m_xrayController.isXrayRunning();
+        response["xray_running"] = isXrayRunning;
         
-        if (isRunning) {
-            response["xray_pid"] = (qint64)m_xrayProcess->processId();
+        if (isXrayRunning) {
+            response["xray_pid"] = m_xrayController.getProcessId();
             response["xray_state"] = "running";
             
             QJsonObject config = m_configManager.readConfig();
@@ -263,8 +196,9 @@ void ProxyServer::setupRoutes()
                 }
             }
             
-            if (m_xrayProcess->error() != QProcess::UnknownError) {
-                response["xray_error"] = m_xrayProcess->errorString();
+            QString error = m_xrayController.getError();
+            if (!error.isEmpty()) {
+                response["xray_error"] = error;
             }
         } else {
             response["xray_state"] = "stopped";

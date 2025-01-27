@@ -12,6 +12,8 @@ set(SOURCES
     trayicon.h
     configmanager.cpp
     configmanager.h
+    xraycontroller.cpp
+    xraycontroller.h
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCES})

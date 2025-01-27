@@ -8,6 +8,7 @@
 #include <QTcpServer>
 #include "trayicon.h"
 #include "configmanager.h"
+#include "xraycontroller.h"
 
 class ProxyServer : public QObject
 {
@@ -28,13 +29,11 @@ private:
     void setupRoutes();
     bool startXrayProcess();
     void stopXrayProcess();
-    QString getXrayExecutablePath() const;
-    QStringList getXrayArguments(const QString &configPath) const;
-    QString getPlatformName() const;
 
     QHttpServer m_server;
     QScopedPointer<QProcess> m_xrayProcess;
     QScopedPointer<QTcpServer> m_tcpServer;
     TrayIcon m_trayIcon;
     ConfigManager m_configManager;
+    XrayController m_xrayController;
 };
