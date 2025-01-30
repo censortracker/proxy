@@ -9,17 +9,17 @@ ProxyService::ProxyService(QObject* parent)
 
 QJsonObject ProxyService::getConfig() const
 {
-    return m_configManager->readConfig();
+    return m_configManager->getActiveConfig();
 }
 
 bool ProxyService::updateConfig(const QString& configStr)
 {
-    return m_configManager->updateConfigFromString(configStr);
+    return m_configManager->updateAllConfigs({configStr});
 }
 
 bool ProxyService::startXray()
 {
-    return m_xrayController->start(m_configManager->getConfigPath());
+    return m_xrayController->start(m_configManager->getActiveConfigPath());
 }
 
 bool ProxyService::stopXray()
