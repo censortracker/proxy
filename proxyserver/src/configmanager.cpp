@@ -110,4 +110,15 @@ QJsonObject ConfigManager::deserializeConfig(const QString &configStr)
     }
 
     return outConfig;
+}
+
+bool ConfigManager::updateConfigFromString(const QString& configStr)
+{
+    QJsonObject config = deserializeConfig(configStr);
+    if (config.isEmpty()) {
+        return false;
+    }
+    
+    config = addInbounds(config);
+    return writeConfig(config);
 } 

@@ -16,4 +16,5 @@ public:
     // Config transformation
     QJsonObject deserializeConfig(const QString& configStr);
     QJsonObject addInbounds(const QJsonObject& config);
+    bool updateConfigFromString(const QString& configStr);
 }; 

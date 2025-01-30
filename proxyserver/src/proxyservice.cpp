@@ -14,13 +14,7 @@ QJsonObject ProxyService::getConfig() const
 
 bool ProxyService::updateConfig(const QString& configStr)
 {
-    QJsonObject config = m_configManager->deserializeConfig(configStr);
-    if (config.isEmpty()) {
-        return false;
-    }
-    
-    config = m_configManager->addInbounds(config);
-    return m_configManager->writeConfig(config);
+    return m_configManager->updateConfigFromString(configStr);
 }
 
 bool ProxyService::startXray()
