@@ -30,11 +30,15 @@ bool HttpApi::start(quint16 port)
     
     qDebug() << "Server is running on localhost:" << m_tcpServer->serverPort();
     qDebug() << "Available endpoints:";
-    qDebug() << "  GET  /api/v1/config";
-    qDebug() << "  POST /api/v1/config";
-    qDebug() << "  POST /api/v1/up";
-    qDebug() << "  POST /api/v1/down";
-    qDebug() << "  GET  /api/v1/ping";
+    qDebug() << "  GET    /api/v1/configs";
+    qDebug() << "  POST   /api/v1/configs";
+    qDebug() << "  PUT    /api/v1/configs";
+    qDebug() << "  DELETE /api/v1/configs";
+    qDebug() << "  PUT    /api/v1/configs/activate";
+    qDebug() << "  GET    /api/v1/configs/active";
+    qDebug() << "  POST   /api/v1/up";
+    qDebug() << "  POST   /api/v1/down";
+    qDebug() << "  GET    /api/v1/ping";
     
     return true;
 }
@@ -48,12 +52,26 @@ void HttpApi::stop()
 
 void HttpApi::setupRoutes()
 {
-    m_server.route("/api/v1/config", QHttpServerRequest::Method::Get,
-        [this] { return handleGetConfig(); });
+    // Config management routes
+    m_server.route("/api/v1/configs", QHttpServerRequest::Method::Get, 
+        [this](const QHttpServerRequest &request) { return handleGetConfigs(request); });
+    
+    m_server.route("/api/v1/configs", QHttpServerRequest::Method::Post,
+        [this](const QHttpServerRequest &request) { return handleAddConfigs(request); });
+    
+    m_server.route("/api/v1/configs", QHttpServerRequest::Method::Put,
+        [this](const QHttpServerRequest &request) { return handleUpdateConfigs(request); });
+    
+    m_server.route("/api/v1/configs", QHttpServerRequest::Method::Delete,
+        [this](const QHttpServerRequest &request) { return handleDeleteConfig(request); });
+    
+    m_server.route("/api/v1/configs/activate", QHttpServerRequest::Method::Put,
+        [this](const QHttpServerRequest &request) { return handleActivateConfig(request); });
+    
+    m_server.route("/api/v1/configs/active", QHttpServerRequest::Method::Get,
+        [this](const QHttpServerRequest &request) { return handleGetActiveConfig(request); });
 
-    m_server.route("/api/v1/config", QHttpServerRequest::Method::Post,
-        [this](const QHttpServerRequest& request) { return handlePostConfig(request); });
-
+    // Xray control routes
     m_server.route("/api/v1/up", QHttpServerRequest::Method::Post,
         [this] { return handlePostUp(); });
 
@@ -62,74 +80,6 @@ void HttpApi::setupRoutes()
 
     m_server.route("/api/v1/ping", QHttpServerRequest::Method::Get,
         [this] { return handleGetPing(); });
-}
-
-QJsonObject HttpApi::handleGetConfig() const
-{
-    if (auto service = m_service.lock()) {
-        QJsonObject config = service->getConfig();
-        QJsonObject response;
-        
-        if (config.isEmpty()) {
-            response["status"] = "error";
-            response["message"] = "Failed to read config";
-        } else {
-            response["status"] = "success";
-            response["config"] = config;
-        }
-        
-        return response;
-    }
-    return { {"status", "error"}, {"message", "Service unavailable"} };
-}
-
-QJsonObject HttpApi::handlePostConfig(const QHttpServerRequest& request)
-{
-    QJsonObject response;
-    
-    QJsonParseError parseError;
-    QJsonDocument doc = QJsonDocument::fromJson(request.body(), &parseError);
-    
-    if (parseError.error != QJsonParseError::NoError) {
-        response["status"] = "error";
-        response["message"] = "Invalid JSON format";
-        return response;
-    }
-    
-    if (!doc.isObject() || !doc.object().contains("config") || !doc.object()["config"].isArray()) {
-        response["status"] = "error";
-        response["message"] = "Request must contain 'config' array field";
-        return response;
-    }
-    
-    QJsonArray configArray = doc.object()["config"].toArray();
-    if (configArray.isEmpty()) {
-        response["status"] = "error";
-        response["message"] = "Config array cannot be empty";
-        return response;
-    }
-    
-    QString configStr = configArray[0].toString();
-    if (configStr.isEmpty()) {
-        response["status"] = "error";
-        response["message"] = "Config string cannot be empty";
-        return response;
-    }
-    
-    if (auto service = m_service.lock()) {
-        if (service->updateConfig(configStr)) {
-            response["status"] = "success";
-            response["message"] = "Config saved successfully";
-        } else {
-            response["status"] = "error";
-            response["message"] = "Failed to save config";
-        }
-    } else {
-        response["status"] = "error";
-        response["message"] = "Service unavailable";
-    }
-    
-    return response;
 }
 
 QJsonObject HttpApi::handlePostUp()
@@ -212,4 +162,326 @@ QJsonObject HttpApi::handleGetPing() const
     }
     
     return response;
+}
+
+QHttpServerResponse HttpApi::handleGetConfigs(const QHttpServerRequest &request)
+{
+    if (auto service = m_service.lock()) {
+        // Get UUIDs from query parameters if present
+        QString uuidList = request.query().queryItemValue("uuid");
+        QMap<QString, QJsonObject> configs;
+
+        if (uuidList.isEmpty()) {
+            // Return all configs if no UUIDs specified
+            configs = service->getAllConfigs();
+        } else {
+            // Return only requested configs
+            QStringList uuids = uuidList.split(',', Qt::SkipEmptyParts);
+            configs = service->getConfigsByUuids(uuids);
+        }
+
+        QJsonObject response;
+        response["status"] = "success";
+        
+        // Convert QMap to QJsonObject manually
+        QJsonObject configsJson;
+        for (auto it = configs.constBegin(); it != configs.constEnd(); ++it) {
+            configsJson[it.key()] = it.value();
+        }
+        response["configs"] = configsJson;
+        
+        return QHttpServerResponse(response);
+    }
+
+    return QHttpServerResponse(
+        QJsonObject{{"status", "error"}, {"message", "Service unavailable"}},
+        QHttpServerResponse::StatusCode::ServiceUnavailable
+    );
+}
+
+QHttpServerResponse HttpApi::handleAddConfigs(const QHttpServerRequest &request)
+{
+    if (auto service = m_service.lock()) {
+        // Parse request body
+        QJsonParseError parseError;
+        QJsonDocument doc = QJsonDocument::fromJson(request.body(), &parseError);
+        
+        if (parseError.error != QJsonParseError::NoError) {
+            return QHttpServerResponse(
+                QJsonObject{
+                    {"status", "error"},
+                    {"message", "Invalid JSON format"}
+                },
+                QHttpServerResponse::StatusCode::BadRequest
+            );
+        }
+
+        if (!doc.isObject()) {
+            return QHttpServerResponse(
+                QJsonObject{
+                    {"status", "error"},
+                    {"message", "Request body must be a JSON object"}
+                },
+                QHttpServerResponse::StatusCode::BadRequest
+            );
+        }
+
+        QJsonObject root = doc.object();
+        if (!root.contains("configs") || !root["configs"].isArray()) {
+            return QHttpServerResponse(
+                QJsonObject{
+                    {"status", "error"},
+                    {"message", "Request body must contain 'configs' array"}
+                },
+                QHttpServerResponse::StatusCode::BadRequest
+            );
+        }
+
+        // Convert JSON array to string list
+        QStringList configs;
+        QJsonArray configsArray = root["configs"].toArray();
+        for (const auto &value : configsArray) {
+            if (!value.isString()) {
+                return QHttpServerResponse(
+                    QJsonObject{
+                        {"status", "error"},
+                        {"message", "All configs must be strings"}
+                    },
+                    QHttpServerResponse::StatusCode::BadRequest
+                );
+            }
+            configs.append(value.toString());
+        }
+
+        if (configs.isEmpty()) {
+            return QHttpServerResponse(
+                QJsonObject{
+                    {"status", "error"},
+                    {"message", "Configs array cannot be empty"}
+                },
+                QHttpServerResponse::StatusCode::BadRequest
+            );
+        }
+
+        // Add configs
+        if (service->addConfigs(configs)) {
+            return QHttpServerResponse(
+                QJsonObject{
+                    {"status", "success"},
+                    {"message", "Configs added successfully"}
+                }
+            );
+        } else {
+            return QHttpServerResponse(
+                QJsonObject{
+                    {"status", "error"},
+                    {"message", "Failed to add configs"}
+                },
+                QHttpServerResponse::StatusCode::InternalServerError
+            );
+        }
+    }
+
+    return QHttpServerResponse(
+        QJsonObject{{"status", "error"}, {"message", "Service unavailable"}},
+        QHttpServerResponse::StatusCode::ServiceUnavailable
+    );
+}
+
+QHttpServerResponse HttpApi::handleUpdateConfigs(const QHttpServerRequest &request)
+{
+    if (auto service = m_service.lock()) {
+        // Parse request body
+        QJsonParseError parseError;
+        QJsonDocument doc = QJsonDocument::fromJson(request.body(), &parseError);
+        
+        if (parseError.error != QJsonParseError::NoError) {
+            return QHttpServerResponse(
+                QJsonObject{
+                    {"status", "error"},
+                    {"message", "Invalid JSON format"}
+                },
+                QHttpServerResponse::StatusCode::BadRequest
+            );
+        }
+
+        if (!doc.isObject()) {
+            return QHttpServerResponse(
+                QJsonObject{
+                    {"status", "error"},
+                    {"message", "Request body must be a JSON object"}
+                },
+                QHttpServerResponse::StatusCode::BadRequest
+            );
+        }
+
+        QJsonObject root = doc.object();
+        if (!root.contains("configs") || !root["configs"].isArray()) {
+            return QHttpServerResponse(
+                QJsonObject{
+                    {"status", "error"},
+                    {"message", "Request body must contain 'configs' array"}
+                },
+                QHttpServerResponse::StatusCode::BadRequest
+            );
+        }
+
+        // Convert JSON array to string list
+        QStringList configs;
+        QJsonArray configsArray = root["configs"].toArray();
+        for (const auto &value : configsArray) {
+            if (!value.isString()) {
+                return QHttpServerResponse(
+                    QJsonObject{
+                        {"status", "error"},
+                        {"message", "All configs must be strings"}
+                    },
+                    QHttpServerResponse::StatusCode::BadRequest
+                );
+            }
+            configs.append(value.toString());
+        }
+
+        if (configs.isEmpty()) {
+            return QHttpServerResponse(
+                QJsonObject{
+                    {"status", "error"},
+                    {"message", "Configs array cannot be empty"}
+                },
+                QHttpServerResponse::StatusCode::BadRequest
+            );
+        }
+
+        // Update configs
+        if (service->updateAllConfigs(configs)) {
+            return QHttpServerResponse(
+                QJsonObject{
+                    {"status", "success"},
+                    {"message", "Configs updated successfully"}
+                }
+            );
+        } else {
+            return QHttpServerResponse(
+                QJsonObject{
+                    {"status", "error"},
+                    {"message", "Failed to update configs"}
+                },
+                QHttpServerResponse::StatusCode::InternalServerError
+            );
+        }
+    }
+
+    return QHttpServerResponse(
+        QJsonObject{{"status", "error"}, {"message", "Service unavailable"}},
+        QHttpServerResponse::StatusCode::ServiceUnavailable
+    );
+}
+
+QHttpServerResponse HttpApi::handleDeleteConfig(const QHttpServerRequest &request)
+{
+    if (auto service = m_service.lock()) {
+        // Get UUID from query parameters
+        QString uuid = request.query().queryItemValue("uuid");
+        
+        if (uuid.isEmpty()) {
+            return QHttpServerResponse(
+                QJsonObject{
+                    {"status", "error"},
+                    {"message", "UUID parameter is required"}
+                },
+                QHttpServerResponse::StatusCode::BadRequest
+            );
+        }
+
+        // Delete config
+        if (service->removeConfig(uuid)) {
+            return QHttpServerResponse(
+                QJsonObject{
+                    {"status", "success"},
+                    {"message", "Config deleted successfully"}
+                }
+            );
+        } else {
+            return QHttpServerResponse(
+                QJsonObject{
+                    {"status", "error"},
+                    {"message", "Failed to delete config"}
+                },
+                QHttpServerResponse::StatusCode::InternalServerError
+            );
+        }
+    }
+
+    return QHttpServerResponse(
+        QJsonObject{{"status", "error"}, {"message", "Service unavailable"}},
+        QHttpServerResponse::StatusCode::ServiceUnavailable
+    );
+}
+
+QHttpServerResponse HttpApi::handleActivateConfig(const QHttpServerRequest &request)
+{
+    if (auto service = m_service.lock()) {
+        // Get UUID from query parameters
+        QString uuid = request.query().queryItemValue("uuid");
+        
+        if (uuid.isEmpty()) {
+            return QHttpServerResponse(
+                QJsonObject{
+                    {"status", "error"},
+                    {"message", "UUID parameter is required"}
+                },
+                QHttpServerResponse::StatusCode::BadRequest
+            );
+        }
+
+        // Activate config
+        if (service->activateConfig(uuid)) {
+            return QHttpServerResponse(
+                QJsonObject{
+                    {"status", "success"},
+                    {"message", "Config activated successfully"}
+                }
+            );
+        } else {
+            return QHttpServerResponse(
+                QJsonObject{
+                    {"status", "error"},
+                    {"message", "Failed to activate config"}
+                },
+                QHttpServerResponse::StatusCode::InternalServerError
+            );
+        }
+    }
+
+    return QHttpServerResponse(
+        QJsonObject{{"status", "error"}, {"message", "Service unavailable"}},
+        QHttpServerResponse::StatusCode::ServiceUnavailable
+    );
+}
+
+QHttpServerResponse HttpApi::handleGetActiveConfig(const QHttpServerRequest &request)
+{
+    if (auto service = m_service.lock()) {
+        QJsonObject activeConfig = service->getActiveConfig();
+        
+        if (!activeConfig.isEmpty()) {
+            QJsonObject response;
+            response["status"] = "success";
+            response["config"] = activeConfig;
+            return QHttpServerResponse(response);
+        } else {
+            return QHttpServerResponse(
+                QJsonObject{
+                    {"status", "error"},
+                    {"message", "No active config found"}
+                },
+                QHttpServerResponse::StatusCode::NotFound
+            );
+        }
+    }
+
+    return QHttpServerResponse(
+        QJsonObject{{"status", "error"}, {"message", "Service unavailable"}},
+        QHttpServerResponse::StatusCode::ServiceUnavailable
+    );
 } 

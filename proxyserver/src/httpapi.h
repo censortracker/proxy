@@ -1,7 +1,10 @@
 #pragma once
 
 #include <QObject>
+#include <QScopedPointer>
 #include <QHttpServer>
+#include <QHttpServerRequest>
+#include <QHttpServerResponse>
 #include <QTcpServer>
 #include <QWeakPointer>
 #include "iproxyservice.h"
@@ -19,9 +22,15 @@ public:
 private:
     void setupRoutes();
     
-    // Route handlers
-    QJsonObject handleGetConfig() const;
-    QJsonObject handlePostConfig(const QHttpServerRequest& request);
+    // Config management endpoints
+    QHttpServerResponse handleGetConfigs(const QHttpServerRequest &request);
+    QHttpServerResponse handleAddConfigs(const QHttpServerRequest &request);
+    QHttpServerResponse handleUpdateConfigs(const QHttpServerRequest &request);
+    QHttpServerResponse handleDeleteConfig(const QHttpServerRequest &request);
+    QHttpServerResponse handleActivateConfig(const QHttpServerRequest &request);
+    QHttpServerResponse handleGetActiveConfig(const QHttpServerRequest &request);
+
+    // Xray control endpoints
     QJsonObject handlePostUp();
     QJsonObject handlePostDown();
     QJsonObject handleGetPing() const;

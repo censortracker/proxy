@@ -16,7 +16,14 @@ public:
     // IProxyService implementation
     QJsonObject getConfig() const override;
     bool updateConfig(const QString& configStr) override;
-    
+    QMap<QString, QJsonObject> getAllConfigs() const override;
+    QMap<QString, QJsonObject> getConfigsByUuids(const QStringList &uuids) const override;
+    bool addConfigs(const QStringList &serializedConfigs) override;
+    bool removeConfig(const QString &uuid) override;
+    bool activateConfig(const QString &uuid) override;
+    QJsonObject getActiveConfig() const override;
+    bool updateAllConfigs(const QStringList &serializedConfigs) override;
+
     bool startXray() override;
     bool stopXray() override;
     bool isXrayRunning() const override;
