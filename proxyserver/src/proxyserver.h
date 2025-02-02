@@ -21,10 +21,12 @@ public:
 private slots:
     void quit();
     void showSettings();
+    void onConfigSelected(const QString& uuid);
 
 private:
     bool startXrayProcess();
     void stopXrayProcess();
+    void updateTrayConfigsMenu();
 
     QScopedPointer<HttpApi> m_api;
     TrayIcon m_trayIcon;

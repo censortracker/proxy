@@ -25,6 +25,10 @@ void TrayIcon::setupMenu()
     
     m_menu->addSeparator();
     
+    m_configsMenu.reset(m_menu->addMenu("Xray Configs"));
+    
+    m_menu->addSeparator();
+    
     auto settingsAction = m_menu->addAction("Settings");
     connect(settingsAction, &QAction::triggered, this, &TrayIcon::settingsRequested);
     
@@ -35,4 +39,31 @@ void TrayIcon::setupMenu()
 void TrayIcon::updateStatus(bool isActive)
 {
     m_statusAction->setText(QString("Status: %1").arg(isActive ? "Active" : "Inactive"));
+}
+
+void TrayIcon::updateConfigsMenu(const QMap<QString, QJsonObject>& configs, const QString& activeConfigUuid)
+{
+    if (!m_configsMenu) {
+        return;
+    }
+
+    m_configsMenu->clear();
+    
+    for (auto it = configs.constBegin(); it != configs.constEnd(); ++it) {
+        const QString& uuid = it.key();
+        const QJsonObject& config = it.value();
+        
+        QString configName = config["name"].toString();
+        if (configName.isEmpty()) {
+            configName = QString("Config %1").arg(uuid.left(8));
+        }
+        
+        QAction* action = m_configsMenu->addAction(configName);
+        action->setCheckable(true);
+        action->setChecked(uuid == activeConfigUuid);
+        
+        connect(action, &QAction::triggered, this, [this, uuid]() {
+            emit configSelected(uuid);
+        });
+    }
 } 

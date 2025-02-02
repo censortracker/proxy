@@ -14,6 +14,8 @@ ProxyServer::ProxyServer(QObject *parent)
 {
     connect(&m_trayIcon, &TrayIcon::settingsRequested, this, &ProxyServer::showSettings);
     connect(&m_trayIcon, &TrayIcon::quitRequested, this, &ProxyServer::quit);
+    connect(&m_trayIcon, &TrayIcon::configSelected, this, &ProxyServer::onConfigSelected);
+    connect(m_service.data(), &ProxyService::configsChanged, this, &ProxyServer::updateTrayConfigsMenu);
 }
 
 ProxyServer::~ProxyServer()
@@ -36,6 +38,7 @@ bool ProxyServer::start(quint16 port)
         qDebug() << "No config found, Xray will not start automatically";
     }
 
+    updateTrayConfigsMenu();
     return true;
 }
 
@@ -72,4 +75,16 @@ void ProxyServer::showSettings()
 {
     // TODO: Implement settings window
     qDebug() << "Show settings";
+}
+
+void ProxyServer::onConfigSelected(const QString& uuid)
+{
+    m_service->activateConfig(uuid);
+}
+
+void ProxyServer::updateTrayConfigsMenu()
+{
+    auto configs = m_service->getAllConfigs();
+    QString activeConfigUuid = m_service->getActiveConfigUuid();
+    m_trayIcon.updateConfigsMenu(configs, activeConfigUuid);
 }

@@ -14,6 +14,7 @@ public:
     bool removeConfig(const QString &uuid);
     bool activateConfig(const QString &uuid);
     bool updateAllConfigs(const QStringList &serializedConfigs);
+    bool clearConfigs();
 
     // Information retrieval
     QString getActiveConfigUuid() const { return m_activeConfigUuid; }

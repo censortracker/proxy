@@ -360,16 +360,20 @@ QMap<QString, QJsonObject> ConfigManager::getConfigsByUuids(const QStringList &u
 
 bool ConfigManager::updateAllConfigs(const QStringList &serializedConfigs)
 {
-    // Clear all existing configs by writing empty config list
-    QJsonObject configsInfo;
-    configsInfo["version"] = 1;
+    if (!clearConfigs()) {
+        return false;
+    }
+    return addConfigs(serializedConfigs);
+}
+
+bool ConfigManager::clearConfigs()
+{
+    QJsonObject configsInfo = readConfigsInfo();
     configsInfo["configs"] = QJsonObject();
     
     if (!writeConfigsInfo(configsInfo)) {
-        qDebug() << "Failed to clear configs info while updating";
         return false;
     }
     
-    // Add new configs
-    return addConfigs(serializedConfigs);
+    return activateConfig(QString());
 }

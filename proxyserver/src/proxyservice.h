@@ -23,12 +23,16 @@ public:
     bool activateConfig(const QString &uuid) override;
     QJsonObject getActiveConfig() const override;
     bool updateAllConfigs(const QStringList &serializedConfigs) override;
+    QString getActiveConfigUuid() const;
 
     bool startXray() override;
     bool stopXray() override;
     bool isXrayRunning() const override;
     qint64 getXrayProcessId() const override;
     QString getXrayError() const override;
+
+signals:
+    void configsChanged();
 
 private:
     QScopedPointer<ConfigManager> m_configManager;
