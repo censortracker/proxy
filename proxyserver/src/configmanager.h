@@ -37,7 +37,7 @@ private:
     // Helper methods
     QString generateUuid() const;
     QString getProtocolFromSerializedConfig(const QString &config) const;
-    QJsonObject deserializeConfig(const QString &configStr);
+    QJsonObject deserializeConfig(const QString &configStr, QString *prefix = nullptr, QString *errorMsg = nullptr);
     QJsonObject addInbounds(const QJsonObject &config);
 
     QString m_activeConfigUuid;

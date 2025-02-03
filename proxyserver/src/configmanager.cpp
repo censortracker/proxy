@@ -138,30 +138,42 @@ QString ConfigManager::getProtocolFromSerializedConfig(const QString &config) co
     return QString();
 }
 
-QJsonObject ConfigManager::deserializeConfig(const QString &configStr)
+QJsonObject ConfigManager::deserializeConfig(const QString &configStr, QString *prefix, QString *errorMsg)
 {
     QJsonObject outConfig;
-    QString prefix;
-    QString errormsg;
+    
+    // Создаем локальные переменные для безопасной работы
+    QString localPrefix;
+    QString localErrorMsg;
+    
+    // Используем указатели на локальные переменные, если входные параметры nullptr
+    QString* safePrefix = prefix ? prefix : &localPrefix;
+    QString* safeErrorMsg = errorMsg ? errorMsg : &localErrorMsg;
 
     if (configStr.startsWith("vless://")) {
-        outConfig = amnezia::serialization::vless::Deserialize(configStr, &prefix, &errormsg);
+        outConfig = amnezia::serialization::vless::Deserialize(configStr, safePrefix, safeErrorMsg);
+        if (safePrefix->contains(QRegularExpression("%[0-9A-Fa-f]{2}"))) {
+            *safePrefix = QString::fromUtf8(QByteArray::fromPercentEncoding(safePrefix->toUtf8()));
+        }
     }
 
     if (configStr.startsWith("vmess://") && configStr.contains("@")) {
-        outConfig = amnezia::serialization::vmess_new::Deserialize(configStr, &prefix, &errormsg);
+        outConfig = amnezia::serialization::vmess_new::Deserialize(configStr, safePrefix, safeErrorMsg);
     }
 
     if (configStr.startsWith("vmess://")) {
-        outConfig = amnezia::serialization::vmess::Deserialize(configStr, &prefix, &errormsg);
+        outConfig = amnezia::serialization::vmess::Deserialize(configStr, safePrefix, safeErrorMsg);
     }
 
     if (configStr.startsWith("trojan://")) {
-        outConfig = amnezia::serialization::trojan::Deserialize(configStr, &prefix, &errormsg);
+        outConfig = amnezia::serialization::trojan::Deserialize(configStr, safePrefix, safeErrorMsg);
     }
 
     if (configStr.startsWith("ss://") && !configStr.contains("plugin=")) {
-        outConfig = amnezia::serialization::ss::Deserialize(configStr, &prefix, &errormsg);
+        outConfig = amnezia::serialization::ss::Deserialize(configStr, safePrefix, safeErrorMsg);
+        if (safePrefix->contains(QRegularExpression("%[0-9A-Fa-f]{2}"))) {
+            *safePrefix = QString::fromUtf8(QByteArray::fromPercentEncoding(safePrefix->toUtf8()));
+        }
     }
 
     return outConfig;
@@ -201,11 +213,16 @@ bool ConfigManager::addConfigs(const QStringList &serializedConfigs)
             firstUuid = uuid;
         }
 
+        QString prefix;
+        QString errorMsg;
+        QJsonObject config = deserializeConfig(serializedConfig, &prefix, &errorMsg);
+
         QJsonObject currentConfigInfo;
         currentConfigInfo["created"] = QDateTime::currentDateTime().toString(Qt::ISODate);
         currentConfigInfo["lastUsed"] = QDateTime::currentDateTime().toString(Qt::ISODate);
         currentConfigInfo["protocol"] = getProtocolFromSerializedConfig(serializedConfig);
         currentConfigInfo["serializedConfig"] = serializedConfig;
+        currentConfigInfo["name"] = prefix.isEmpty() ? uuid : prefix;
 
         configs[uuid] = currentConfigInfo;
     }
@@ -285,7 +302,9 @@ bool ConfigManager::activateConfig(const QString &uuid)
     QString serializedConfig = currentConfigInfo["serializedConfig"].toString();
 
     // Deserialize config and add inbounds
-    QJsonObject currentConfig = deserializeConfig(serializedConfig);
+    QString prefix;
+    QString errorMsg;
+    QJsonObject currentConfig = deserializeConfig(serializedConfig, &prefix, &errorMsg);
     if (currentConfig.isEmpty())
     {
         qDebug() << "Failed to deserialize config for UUID:" << uuid;
