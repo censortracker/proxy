@@ -26,19 +26,22 @@ ProxyServer::~ProxyServer()
 bool ProxyServer::start(quint16 port)
 {
     m_api.reset(new HttpApi(m_service.toWeakRef()));
-    if (!m_api->start(port)) {
-        return false;
-    }
-
-    // Auto-start Xray if config exists
-    QJsonObject config = m_service->getConfig();
-    if (!config.isEmpty()) {
-        startXrayProcess();
+    bool apiStarted = m_api->start(port);
+    if (!apiStarted) {
+        m_trayIcon.updateError("The port is busy. Please free it and try again.");
     } else {
-        qDebug() << "No config found, Xray will not start automatically";
+        // Auto-start Xray if config exists
+        updateTrayConfigsMenu();
+        QJsonObject config = m_service->getConfig();
+        if (!config.isEmpty()) {
+            startXrayProcess();
+        } else {
+            qDebug() << "No config found, Xray will not start automatically";
+        }
     }
 
-    updateTrayConfigsMenu();
+    quint16 proxyPort = 10808; // Can be replaced with the configuration value if specified
+    m_trayIcon.updatePorts(proxyPort, port);
     return true;
 }
 

@@ -18,6 +18,8 @@ public:
 
     void updateStatus(bool isActive);
     void updateConfigsMenu(const QMap<QString, QJsonObject>& configs, const QString& activeConfigUuid);
+    void updatePorts(quint16 proxyPort, quint16 httpPort);
+    void updateError(const QString &errorMessage);
 
 signals:
     void settingsRequested();
@@ -31,5 +33,6 @@ private:
     QScopedPointer<QSystemTrayIcon> m_trayIcon;
     QScopedPointer<QMenu> m_menu;
     QScopedPointer<QAction> m_statusAction;
+    QScopedPointer<QAction> m_portsAction;
     QScopedPointer<QMenu> m_configsMenu;
 }; 

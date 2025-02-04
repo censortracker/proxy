@@ -23,6 +23,9 @@ void TrayIcon::setupMenu()
     m_statusAction.reset(m_menu->addAction("Xray Status: Inactive"));
     m_statusAction->setEnabled(false);
     
+    m_portsAction.reset(m_menu->addAction("Ports: -"));
+    m_portsAction->setEnabled(false);
+    
     m_menu->addSeparator();
     
     m_configsMenu.reset(m_menu->addMenu("Xray Configs"));
@@ -66,4 +69,20 @@ void TrayIcon::updateConfigsMenu(const QMap<QString, QJsonObject>& configs, cons
             emit configSelected(uuid);
         });
     }
+}
+
+void TrayIcon::updatePorts(quint16 proxyPort, quint16 httpPort)
+{
+    if(m_portsAction)
+        m_portsAction->setText(QString("Ports: Xray: %1, HttpApi: %2").arg(proxyPort).arg(httpPort));
+    if(m_trayIcon)
+        m_trayIcon->setToolTip(QString("CT Desktop Proxy (Xray: %1, HttpApi: %2)").arg(proxyPort).arg(httpPort));
+}
+
+void TrayIcon::updateError(const QString &errorMessage)
+{
+    if(m_statusAction)
+        m_statusAction->setText(QString("Error: %1").arg(errorMessage));
+    if(m_trayIcon)
+        m_trayIcon->setToolTip(QString("Error: %1").arg(errorMessage));
 } 
