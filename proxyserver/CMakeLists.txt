@@ -4,6 +4,10 @@ add_subdirectory(xray-serialization)
 
 qt_add_resources(RESOURCES resources.qrc)
 
+if(WIN32)
+    set(APP_ICON_RESOURCE_WINDOWS "${CMAKE_CURRENT_SOURCE_DIR}/proxyserver.rc")
+endif()
+
 set(SOURCES
     src/main.cpp
     src/proxyserver.cpp
@@ -19,6 +23,7 @@ set(SOURCES
     src/proxyservice.h
     src/httpapi.cpp
     src/httpapi.h
+    ${APP_ICON_RESOURCE_WINDOWS}
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCES})
