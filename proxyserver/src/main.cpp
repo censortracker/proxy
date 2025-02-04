@@ -6,6 +6,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     
     app.setQuitOnLastWindowClosed(false);
+    app.setWindowIcon(QIcon(":/icons/Winicon.png"));
     
     ProxyServer server;
     if (!server.start(8080)) {
