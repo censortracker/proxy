@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     app.setWindowIcon(QIcon(":/icons/Winicon.png"));
     
     ProxyServer server;
-    if (!server.start(8080)) {
+    if (!server.start(49490)) {
         return 1;
     }
     
