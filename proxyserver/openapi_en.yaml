@@ -1,0 +1,338 @@
+openapi: 3.0.0
+info:
+  title: Proxy Server API
+  version: "1.0.0"
+  description: API for managing proxy configurations and controlling the Xray process.
+servers:
+  - url: 'http://localhost:{port}'
+    description: Local server
+    variables:
+      port:
+        default: '8080'
+paths:
+  /api/v1/configs:
+    get:
+      summary: Get configurations
+      description: Returns all configurations if the 'uuid' parameter is not specified. If specified, returns only the requested configurations.
+      parameters:
+        - in: query
+          name: uuid
+          schema:
+            type: string
+          description: Comma-separated list of UUIDs.
+      responses:
+        '200':
+          description: Configurations retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  configs:
+                    type: object
+        '503':
+          description: Service unavailable.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+    post:
+      summary: Add configurations
+      description: Adds new configurations. The request body must contain an array of strings with the key 'configs'.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                configs:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - configs
+      responses:
+        '200':
+          description: Configurations added successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '500':
+          description: Server error while adding configurations.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+    put:
+      summary: Update configurations
+      description: Updates all configurations. The request body must contain an array of strings with the key 'configs'.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                configs:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - configs
+      responses:
+        '200':
+          description: Configurations updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '500':
+          description: Server error while updating configurations.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+    delete:
+      summary: Delete configuration
+      description: Deletes the configuration specified by the 'uuid' query parameter.
+      parameters:
+        - in: query
+          name: uuid
+          required: true
+          schema:
+            type: string
+          description: UUID of the configuration to delete.
+      responses:
+        '200':
+          description: Configuration deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '400':
+          description: UUID not provided or invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '500':
+          description: Server error while deleting configuration.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+  /api/v1/configs/activate:
+    put:
+      summary: Activate configuration
+      description: Activates the configuration specified by the 'uuid' query parameter.
+      parameters:
+        - in: query
+          name: uuid
+          required: true
+          schema:
+            type: string
+          description: UUID of the configuration to activate.
+      responses:
+        '200':
+          description: Configuration activated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '400':
+          description: UUID not provided or invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '500':
+          description: Failed to activate configuration.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+  /api/v1/configs/active:
+    get:
+      summary: Get active configuration
+      description: Returns the active configuration.
+      responses:
+        '200':
+          description: Active configuration retrieved.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  config:
+                    type: object
+        '404':
+          description: Active configuration not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '503':
+          description: Service unavailable.
+  /api/v1/up:
+    post:
+      summary: Start Xray process
+      description: Starts the Xray process and returns the start status along with the port if the start is successful.
+      responses:
+        '200':
+          description: Xray process started successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                  xray_port:
+                    type: integer
+                    nullable: true
+        '500':
+          description: Failed to start Xray process.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+  /api/v1/down:
+    post:
+      summary: Stop Xray process
+      description: Stops the Xray process.
+      responses:
+        '200':
+          description: Xray process stopped successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+  /api/v1/ping:
+    get:
+      summary: Check API and Xray process status
+      description: Returns the server status, timestamp, and information about the Xray process if it is running.
+      responses:
+        '200':
+          description: Successful status check.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  timestamp:
+                    type: string
+                  xray_running:
+                    type: boolean
+                  xray_pid:
+                    type: integer
+                    nullable: true
+                  xray_state:
+                    type: string
+                  xray_port:
+                    type: integer
+                    nullable: true
+                  xray_error:
+                    type: string
+                    nullable: true 

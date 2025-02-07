@@ -1,0 +1,338 @@
+openapi: 3.0.0
+info:
+  title: Proxy Server API
+  version: "1.0.0"
+  description: API для управления конфигурациями прокси и управления процессом Xray.
+servers:
+  - url: 'http://localhost:{port}'
+    description: Локальный сервер
+    variables:
+      port:
+        default: '49490'
+paths:
+  /api/v1/configs:
+    get:
+      summary: Получить конфигурации
+      description: Возвращает все конфигурации, если параметр uuid не указан. Если указан, возвращает только указанные конфигурации.
+      parameters:
+        - in: query
+          name: uuid
+          schema:
+            type: string
+          description: Список UUID через запятую.
+      responses:
+        '200':
+          description: Конфигурации получены успешно.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  configs:
+                    type: object
+        '503':
+          description: Сервис недоступен.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+    post:
+      summary: Добавить конфигурации
+      description: Добавляет новые конфигурации. Тело запроса должно содержать массив строк с ключом configs.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                configs:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - configs
+      responses:
+        '200':
+          description: Конфигурации успешно добавлены.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '400':
+          description: Некорректный запрос.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '500':
+          description: Ошибка сервера при добавлении конфигураций.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+    put:
+      summary: Обновить конфигурации
+      description: Обновляет все конфигурации. Тело запроса должно содержать массив строк с ключом configs.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                configs:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - configs
+      responses:
+        '200':
+          description: Конфигурации успешно обновлены.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '400':
+          description: Некорректный запрос.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '500':
+          description: Ошибка сервера при обновлении конфигураций.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+    delete:
+      summary: Удалить конфигурацию
+      description: Удаляет конфигурацию, указанную параметром uuid в строке запроса.
+      parameters:
+        - in: query
+          name: uuid
+          required: true
+          schema:
+            type: string
+          description: UUID конфигурации для удаления.
+      responses:
+        '200':
+          description: Конфигурация успешно удалена.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '400':
+          description: UUID не указан или некорректен.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '500':
+          description: Ошибка сервера при удалении конфигурации.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+  /api/v1/configs/activate:
+    put:
+      summary: Активировать конфигурацию
+      description: Активирует конфигурацию, указанную в параметре uuid.
+      parameters:
+        - in: query
+          name: uuid
+          required: true
+          schema:
+            type: string
+          description: UUID конфигурации для активации.
+      responses:
+        '200':
+          description: Конфигурация успешно активирована.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '400':
+          description: UUID не указан или некорректен.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '500':
+          description: Не удалось активировать конфигурацию.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+  /api/v1/configs/active:
+    get:
+      summary: Получить активную конфигурацию
+      description: Возвращает активную конфигурацию.
+      responses:
+        '200':
+          description: Активная конфигурация получена.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  config:
+                    type: object
+        '404':
+          description: Активная конфигурация не найдена.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '503':
+          description: Сервис недоступен.
+  /api/v1/up:
+    post:
+      summary: Запустить процесс Xray
+      description: Запускает процесс Xray и возвращает статус запуска, а также порт, если запуск успешен.
+      responses:
+        '200':
+          description: Процесс Xray успешно запущен.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                  xray_port:
+                    type: integer
+                    nullable: true
+        '500':
+          description: Не удалось запустить процесс Xray.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+  /api/v1/down:
+    post:
+      summary: Остановить процесс Xray
+      description: Останавливает процесс Xray.
+      responses:
+        '200':
+          description: Процесс Xray успешно остановлен.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+  /api/v1/ping:
+    get:
+      summary: Проверка статуса API и процесса Xray
+      description: Возвращает статус сервера, временную метку и информацию о процессе Xray, если он запущен.
+      responses:
+        '200':
+          description: Успешная проверка статуса.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  timestamp:
+                    type: string
+                  xray_running:
+                    type: boolean
+                  xray_pid:
+                    type: integer
+                    nullable: true
+                  xray_state:
+                    type: string
+                  xray_port:
+                    type: integer
+                    nullable: true
+                  xray_error:
+                    type: string
+                    nullable: true 
