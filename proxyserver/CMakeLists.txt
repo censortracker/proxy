@@ -23,6 +23,8 @@ set(SOURCES
     src/proxyservice.h
     src/httpapi.cpp
     src/httpapi.h
+    src/logger.cpp
+    src/logger.h
     ${APP_ICON_RESOURCE_WINDOWS}
 )
 
