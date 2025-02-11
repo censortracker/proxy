@@ -76,7 +76,6 @@ jobs:
       with:
         files: |
           proxyserver_x${{ env.BUILD_ARCH }}.exe
-          deploy\\build_${{ env.BUILD_ARCH }}\\release\\*
         draft: false
         prerelease: false
       env:
