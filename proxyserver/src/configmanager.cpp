@@ -436,9 +436,7 @@ QMap<QString, QJsonObject> ConfigManager::getConfigsByUuids(const QStringList &u
         else
         {
             Logger::getInstance().warning(QString("Config not found for UUID: %1").arg(uuid));
-            QJsonObject undefinedConfig;
-            undefinedConfig["status"] = "Undefined";
-            result[uuid] = undefinedConfig;
+            result[uuid] = QJsonObject();
         }
     }
 

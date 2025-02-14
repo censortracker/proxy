@@ -6,6 +6,7 @@
 #include <QDateTime>
 #include <QHostAddress>
 #include <QDebug>
+#include <QUrl>
 
 HttpApi::HttpApi(QWeakPointer<IProxyService> service, QObject* parent)
     : QObject(parent)
@@ -213,8 +214,8 @@ QJsonObject HttpApi::handleGetPing() const
 QHttpServerResponse HttpApi::handleGetConfigs(const QHttpServerRequest &request)
 {
     if (auto service = m_service.lock()) {
-        // Get UUIDs from query parameters if present
-        QString uuidList = request.query().queryItemValue("uuid");
+        // Get UUIDs from query parameters if present and decode URL-encoded characters
+        QString uuidList = QUrl::fromPercentEncoding(request.query().queryItemValue("uuid").toUtf8());
         Logger::getInstance().debug(QString("UUID filter: %1").arg(uuidList.isEmpty() ? "none" : uuidList));
         
         QMap<QString, QJsonObject> configs;
