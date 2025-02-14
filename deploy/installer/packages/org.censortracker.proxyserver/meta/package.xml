@@ -2,7 +2,7 @@
 <Package>
     <DisplayName>Censortracker Proxy Server</DisplayName>
     <Description>Installation package for Censortracker Proxy Server</Description>
-    <Version>0.1.0.0</Version>
+    <Version>0.1.0.1</Version>
     <ReleaseDate>2025-02-11</ReleaseDate>
     <Default>true</Default>
     <Script>installscript.qs</Script>

@@ -396,7 +396,20 @@ bool ConfigManager::activateConfig(const QString &uuid)
 
 QJsonObject ConfigManager::getActiveConfig() const
 {
-    return readActiveConfig();
+    Logger::getInstance().debug("Getting active config info");
+    QJsonObject configsInfo = readConfigsInfo();
+    QJsonObject configs = configsInfo["configs"].toObject();
+    QString activeUuid = getActiveConfigUuid();
+
+    if (activeUuid.isEmpty() || !configs.contains(activeUuid)) {
+        Logger::getInstance().debug("No active config found");
+        return QJsonObject();
+    }
+
+    Logger::getInstance().debug(QString("Retrieved active config info for UUID: %1").arg(activeUuid));
+    QJsonObject result = configs[activeUuid].toObject();
+    result["id"] = activeUuid;
+    return result;
 }
 
 QMap<QString, QJsonObject> ConfigManager::getAllConfigs() const
