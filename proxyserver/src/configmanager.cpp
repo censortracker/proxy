@@ -254,6 +254,7 @@ bool ConfigManager::addConfigs(const QStringList &serializedConfigs)
         currentConfigInfo["protocol"] = getProtocolFromSerializedConfig(serializedConfig);
         currentConfigInfo["serializedConfig"] = serializedConfig;
         currentConfigInfo["name"] = prefix.isEmpty() ? uuid : prefix;
+        currentConfigInfo["isActive"] = false;
 
         Logger::getInstance().info(QString("Adding config: UUID=%1, Protocol=%2, Name=%3")
             .arg(uuid)
@@ -336,12 +337,20 @@ bool ConfigManager::activateConfig(const QString &uuid)
     QJsonObject configsInfo = readConfigsInfo();
     QJsonObject configs = configsInfo["configs"].toObject();
 
+    // Reset isActive flag for all configs
+    for (auto it = configs.begin(); it != configs.end(); ++it) {
+        QJsonObject config = it.value().toObject();
+        config["isActive"] = false;
+        it.value() = config;
+    }
+
     // If uuid is empty, just reset active config
     if (uuid.isEmpty())
     {
         Logger::getInstance().info("Resetting active config");
         m_activeConfigUuid = QString();
         configsInfo["activeConfigUuid"] = QString();
+        configsInfo["configs"] = configs;
         return writeConfigsInfo(configsInfo);
     }
 
@@ -373,8 +382,9 @@ bool ConfigManager::activateConfig(const QString &uuid)
     Logger::getInstance().debug("Adding inbounds to config");
     currentConfig = addInbounds(currentConfig);
 
-    // Update lastUsed
+    // Update lastUsed and isActive
     currentConfigInfo["lastUsed"] = QDateTime::currentDateTime().toString(Qt::ISODate);
+    currentConfigInfo["isActive"] = true;
     configs[uuid] = currentConfigInfo;
     configsInfo["configs"] = configs;
 
