@@ -22,7 +22,7 @@ Key Features:
 ## Installation
 
 > [!IMPORTANT]  
-> Censor Tracker Proxy is available only for Windows.
+> Censor Tracker Proxy is currently available only for Windows. We plan to add support for macOS and Linux in future releases.
 
 You can download the latest version for your operating system from the [Releases](https://github.com/censortracker/proxy/releases) page.
 
