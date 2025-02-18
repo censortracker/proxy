@@ -29,6 +29,8 @@ Once running, the proxy operates as a local `SOCKS5` server and can be configure
 
 ## API Documentation
 
+See [OpenAPI specification](https://github.com/censortracker/proxy/blob/main/proxyserver/openapi_en.yaml) for more details.
+
 #### Retrieve Configs
 
 **`GET /api/v1/configs`**
