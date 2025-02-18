@@ -53,7 +53,7 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 echo "Deploying..."
 
 mkdir "%OUT_APP_DIR%"
-copy "%WORK_DIR%\CensorTrackerProxy\Release\*.*" "%OUT_APP_DIR%"
+copy "%WORK_DIR%\proxyserver\Release\*.*" "%OUT_APP_DIR%"
 
 echo "Deploying Qt dependencies..."
 "%QT_BIN_DIR:"=%\windeployqt" --release --force --no-translations "%OUT_APP_DIR:"=%\%APP_FILENAME:"=%"
