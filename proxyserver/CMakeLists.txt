@@ -28,7 +28,11 @@ set(SOURCES
     ${APP_ICON_RESOURCE_WINDOWS}
 )
 
-add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCES})
+if(WIN32)
+    add_executable(${PROJECT_NAME} WIN32 ${SOURCES} ${RESOURCES})
+else()
+    add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCES})
+endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt6::Core
