@@ -4,8 +4,12 @@
   <img src="https://github.com/user-attachments/assets/7d217584-aaee-4447-8607-68d73c2c642e" width="950" height="auto" alt="Censor Tracker Proxy">
 </p>
 
-**Censor Tracker Proxy** is a local SOCKS5 proxy tunnel designed to work with the Censor Tracker browser extension. It allows you to use VLESS, VMess, and Shadowsocks 
-proxies directly from your browser by forwarding traffic through a local proxy server.
+**Censor Tracker Proxy** is a lightweight client that integrates with the Censor Tracker browser extension to enable the use of Xray's proxies 
+(Vless, Vmess, Shadowsocks, and Trojan) directly from your browser. 
+
+It allows users to add proxy configurations for various protocols and then 
+sets up a local SOCKS5 proxy server. The browser routes its traffic through this local proxy, which in turn forwards the traffic to the designated remote proxy servers based on your configuration.
+
 
 Key Features:
 
