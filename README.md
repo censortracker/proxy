@@ -4,7 +4,7 @@
   <img src="https://github.com/user-attachments/assets/7d217584-aaee-4447-8607-68d73c2c642e" width="950" height="auto" alt="Censor Tracker Proxy">
 </p>
 
-**Censor Tracker Proxy** is a lightweight client that integrates with the Censor Tracker browser extension to enable the use of Xray's proxies 
+**Censor Tracker Proxy** is a lightweight client that integrates with the [Censor Tracker](https://github.com/censortracker) browser extension to enable the use of Xray's proxies 
 (Vless, Vmess, Shadowsocks, and Trojan) directly from your browser. 
 
 It allows users to add proxy configurations for various protocols and then 
