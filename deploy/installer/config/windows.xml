@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Installer>
     <Name>Censor Tracker Proxy</Name>
-    <Version>0.1.0.3</Version>
+    <Version>0.1.0.4</Version>
     <Title>Censor Tracker Proxy</Title>
     <Publisher>Censor Tracker</Publisher>
     <StartMenuDir>Censor Tracker Proxy</StartMenuDir>
