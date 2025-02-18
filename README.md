@@ -37,12 +37,12 @@ This endpoint retrieves a list of configs. You can request either all configs or
 
 ##### Query Parameters
 
-- uuid (optional): A comma-separated list of UUIDs.
+- `uuid` (optional): A comma-separated list of UUIDs.
 
 ##### Response
 
-- If no UUID is provided – returns all configs.
-- If UUIDs are provided – returns only the specified configs.
+- If no `uuid` is provided – returns all configs.
+- If `uuid`s are provided – returns only the specified configs.
 - If no matching configs are found – returns an empty list.
 
 #### Add Configs
@@ -82,8 +82,9 @@ A JSON array containing the full list of configs.
 
 This endpoint deletes a config by its UUID. If the active config is deleted, the first remaining config becomes active.
 
-##### Query Parameters:
-- uuid (required): The UUID of the config to delete.
+##### Query Parameters
+
+- `uuid` (required): The UUID of the config to delete.
 
 ##### Response
 
@@ -98,7 +99,7 @@ This endpoint sets the specified config as active by deserializing and preparing
 
 ##### Query Parameters
 
-- uuid (required): The UUID of the config to activate.
+- `uuid` (required): The UUID of the config to activate.
 
 ##### Response
 
