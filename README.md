@@ -12,3 +12,4 @@ Key Features:
 - ⚡ Seamless integration with the Censor Tracker extension
 - 🌍 Support for multiple proxy protocols (`VLESS`, `VMess`, `Shadowsocks`)
 - 🔒 Reliable and efficient browsing experience
+- 🔗 Local API support, enabling integration with other software and tools
