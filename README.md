@@ -14,7 +14,7 @@ sets up a local SOCKS5 proxy server. The browser routes its traffic through this
 Key Features:
 
 - ⚡ Seamless integration with the Censor Tracker extension
-- 🌍 Support for multiple proxy protocols (`VLESS`, `VMess`, `Shadowsocks`)
+- 🌍 Support for multiple proxy protocols (`VLESS`, `VMess`, `Shadowsocks` and `Trojan`)
 - 🔒 Reliable and efficient browsing experience
 - 🔗 Local API support, enabling integration with other software and tools
 
