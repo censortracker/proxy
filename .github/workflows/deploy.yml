@@ -62,14 +62,14 @@ jobs:
     - name: 'Upload installer artifact'
       uses: actions/upload-artifact@v4
       with:
-        name: CTProxyServer_Windows_installer
-        path: proxyserver_x${{ env.BUILD_ARCH }}.exe
+        name: CensorTrackerProxy_Windows_installer
+        path: censor_tracker_proxy_x${{ env.BUILD_ARCH }}.exe
         retention-days: 7
 
     - name: 'Upload unpacked artifact'
       uses: actions/upload-artifact@v4
       with:
-        name: CTProxyServer_Windows_unpacked
+        name: CensorTrackerProxy_Windows_unpacked
         path: deploy\\build_${{ env.BUILD_ARCH }}\\release
         retention-days: 7
 
@@ -78,7 +78,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          proxyserver_x${{ env.BUILD_ARCH }}.exe
+          censor_tracker_proxy_x${{ env.BUILD_ARCH }}.exe
         draft: false
         prerelease: false
       env:

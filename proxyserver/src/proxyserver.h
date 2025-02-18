@@ -20,7 +20,6 @@ public:
 
 private slots:
     void quit();
-    void showSettings();
     void onConfigSelected(const QString& uuid);
 
 private:

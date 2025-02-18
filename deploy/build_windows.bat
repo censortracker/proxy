@@ -14,9 +14,9 @@ set PROJECT_DIR=%cd%
 set SCRIPT_DIR=%PROJECT_DIR:"=%\deploy
 
 set WORK_DIR=%SCRIPT_DIR:"=%\build_%BUILD_ARCH:"=%
-set APP_NAME=proxyserver
+set APP_NAME=CensorTrackerProxy
 set APP_FILENAME=%APP_NAME:"=%.exe
-set APP_DOMAIN=org.censortracker.proxyserver
+set APP_DOMAIN=org.censortracker.proxy
 set OUT_APP_DIR=%WORK_DIR:"=%\release
 set PREBILT_DIR=%PROJECT_DIR:"=%\xray-prebuilt\windows
 set INSTALLER_DATA_DIR=%WORK_DIR:"=%\installer\packages\%APP_DOMAIN:"=%\data
@@ -53,7 +53,7 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 echo "Deploying..."
 
 mkdir "%OUT_APP_DIR%"
-copy "%WORK_DIR%\proxyserver\Release\*.*" "%OUT_APP_DIR%"
+copy "%WORK_DIR%\CensorTrackerProxy\Release\*.*" "%OUT_APP_DIR%"
 
 echo "Deploying Qt dependencies..."
 "%QT_BIN_DIR:"=%\windeployqt" --release --force --no-translations "%OUT_APP_DIR:"=%\%APP_FILENAME:"=%"

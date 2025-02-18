@@ -12,7 +12,6 @@ ProxyServer::ProxyServer(QObject *parent)
     , m_trayIcon(this)
     , m_service(new ProxyService(this))
 {
-    connect(&m_trayIcon, &TrayIcon::settingsRequested, this, &ProxyServer::showSettings);
     connect(&m_trayIcon, &TrayIcon::quitRequested, this, &ProxyServer::quit);
     connect(&m_trayIcon, &TrayIcon::configSelected, this, &ProxyServer::onConfigSelected);
     connect(m_service.data(), &ProxyService::configsChanged, this, &ProxyServer::updateTrayConfigsMenu);
@@ -72,12 +71,6 @@ void ProxyServer::quit()
 {
     stop();
     QApplication::quit();
-}
-
-void ProxyServer::showSettings()
-{
-    // TODO: Implement settings window
-    qDebug() << "Show settings";
 }
 
 void ProxyServer::onConfigSelected(const QString& uuid)

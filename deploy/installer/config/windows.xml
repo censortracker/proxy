@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Installer>
-    <Name>Censortracker Proxy Server</Name>
-    <Version>0.1.0.2</Version>
-    <Title>Censortracker Proxy Server</Title>
-    <Publisher>Censortracker</Publisher>
-    <StartMenuDir>Censortracker</StartMenuDir>
-    <TargetDir>@ApplicationsDirX64@/CTProxyServer</TargetDir>
-    <RunProgram>@TargetDir@/proxyserver.exe</RunProgram>
+    <Name>Censor Tracker Proxy</Name>
+    <Version>0.1.0.3</Version>
+    <Title>Censor Tracker Proxy</Title>
+    <Publisher>Censor Tracker</Publisher>
+    <StartMenuDir>Censor Tracker Proxy</StartMenuDir>
+    <TargetDir>@ApplicationsDirX64@/Censor Tracker Proxy</TargetDir>
+    <RunProgram>@TargetDir@/CensorTrackerProxy.exe</RunProgram>
     <MaintenanceToolName>MaintenanceTool</MaintenanceToolName>
 </Installer> 

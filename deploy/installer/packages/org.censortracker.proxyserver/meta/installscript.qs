@@ -8,17 +8,17 @@ Component.prototype.createOperations = function()
 
     if (systemInfo.productType === "windows") {
         component.addOperation("CreateShortcut", 
-            "@TargetDir@/proxyserver.exe",
-            "@StartMenuDir@/Censortracker Proxy Server.lnk",
+            "@TargetDir@/CensorTrackerProxy.exe",
+            "@StartMenuDir@/Censor Tracker Proxy.lnk",
             "workingDirectory=@TargetDir@",
-            "iconPath=@TargetDir@/proxyserver.exe",
-            "description=Censortracker Proxy Server");
+            "iconPath=@TargetDir@/CensorTrackerProxy.exe",
+            "description=Censor Tracker Proxy");
             
         component.addOperation("CreateShortcut",
-            "@TargetDir@/proxyserver.exe",
-            "@DesktopDir@/Censortracker Proxy Server.lnk",
+            "@TargetDir@/CensorTrackerProxy.exe",
+            "@DesktopDir@/Censor Tracker Proxy.lnk",
             "workingDirectory=@TargetDir@",
-            "iconPath=@TargetDir@/proxyserver.exe",
-            "description=Censortracker Proxy Server");
+            "iconPath=@TargetDir@/CensorTrackerProxy.exe",
+            "description=Censor Tracker Proxy");
     }
 } 

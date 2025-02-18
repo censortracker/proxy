@@ -22,7 +22,6 @@ public:
     void updateError(const QString &errorMessage);
 
 signals:
-    void settingsRequested();
     void quitRequested();
     void configSelected(const QString& uuid);
 

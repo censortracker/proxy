@@ -11,7 +11,7 @@ void TrayIcon::setupIcon()
 {
     m_trayIcon.reset(new QSystemTrayIcon(this));
     m_trayIcon->setIcon(QIcon(":/icons/tray.png"));
-    m_trayIcon->setToolTip("CT Desktop Proxy");
+    m_trayIcon->setToolTip("Censor Tracker Proxy");
     m_trayIcon->setContextMenu(m_menu.data());
     m_trayIcon->show();
 }
@@ -31,9 +31,6 @@ void TrayIcon::setupMenu()
     m_configsMenu.reset(m_menu->addMenu("Xray Configs"));
     
     m_menu->addSeparator();
-    
-    auto settingsAction = m_menu->addAction("Settings");
-    connect(settingsAction, &QAction::triggered, this, &TrayIcon::settingsRequested);
     
     auto quitAction = m_menu->addAction("Exit");
     connect(quitAction, &QAction::triggered, this, &TrayIcon::quitRequested);
@@ -76,7 +73,7 @@ void TrayIcon::updatePorts(quint16 proxyPort, quint16 httpPort)
     if(m_portsAction)
         m_portsAction->setText(QString("Ports: Xray: %1, HttpApi: %2").arg(proxyPort).arg(httpPort));
     if(m_trayIcon)
-        m_trayIcon->setToolTip(QString("CT Desktop Proxy (Xray: %1, HttpApi: %2)").arg(proxyPort).arg(httpPort));
+        m_trayIcon->setToolTip(QString("Censor Tracker Proxy (Xray: %1, HttpApi: %2)").arg(proxyPort).arg(httpPort));
 }
 
 void TrayIcon::updateError(const QString &errorMessage)

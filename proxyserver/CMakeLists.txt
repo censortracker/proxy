@@ -1,4 +1,4 @@
-project(proxyserver)
+project(CensorTrackerProxy)
 
 add_subdirectory(xray-serialization)
 

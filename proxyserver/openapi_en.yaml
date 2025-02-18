@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: Proxy Server API
+  title: Censor Tracker Proxy API
   version: "1.0.0"
   description: API for managing proxy configurations and controlling the Xray process.
 servers:
