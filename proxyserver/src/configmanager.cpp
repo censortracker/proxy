@@ -229,8 +229,19 @@ bool ConfigManager::addConfigs(const QStringList &serializedConfigs)
     QString activeUuid = getActiveConfigUuid();
     QString firstUuid;
 
+    QSet<QString> existingConfigs;
+    for (auto it = configs.begin(); it != configs.end(); ++it) {
+        QJsonObject configInfo = it.value().toObject();
+        existingConfigs.insert(configInfo["serializedConfig"].toString());
+    }
+
     for (const QString &serializedConfig : serializedConfigs)
     {
+        if (existingConfigs.contains(serializedConfig)) {
+            Logger::getInstance().info("Skipping duplicate config");
+            continue;
+        }
+
         QString uuid = generateUuid();
         Logger::getInstance().debug(QString("Generated new UUID: %1").arg(uuid));
         
