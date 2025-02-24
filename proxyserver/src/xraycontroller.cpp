@@ -5,9 +5,8 @@
 #include <QCoreApplication>
 #include <QDebug>
 
-XrayController::XrayController(QObject* parent)
-    : QObject(parent)
-    , m_process(nullptr)
+XrayController::XrayController(QObject *parent)
+    : QObject(parent), m_process(nullptr)
 {
     Logger::getInstance().debug("XrayController initialized");
 }
@@ -17,9 +16,10 @@ XrayController::~XrayController()
     stop();
 }
 
-bool XrayController::start(const QString& configPath)
+bool XrayController::start(const QString &configPath)
 {
-    if (isXrayRunning()) {
+    if (isXrayRunning())
+    {
         Logger::getInstance().info("Xray process is already running");
         return true;
     }
@@ -27,12 +27,14 @@ bool XrayController::start(const QString& configPath)
     QString xrayPath = getXrayExecutablePath();
     Logger::getInstance().debug(QString("Xray executable path: %1").arg(xrayPath));
 
-    if (!QFile::exists(xrayPath)) {
+    if (!QFile::exists(xrayPath))
+    {
         Logger::getInstance().error(QString("Xray binary not found at: %1").arg(xrayPath));
         return false;
     }
 
-    if (!QFile::exists(configPath)) {
+    if (!QFile::exists(configPath))
+    {
         Logger::getInstance().error(QString("Config file not found at: %1").arg(configPath));
         return false;
     }
@@ -44,7 +46,8 @@ bool XrayController::start(const QString& configPath)
     m_process->setArguments(getXrayArguments(configPath));
 
     m_process->start();
-    if (!m_process->waitForStarted()) {
+    if (!m_process->waitForStarted())
+    {
         Logger::getInstance().error(QString("Failed to start Xray process: %1").arg(m_process->errorString()));
         m_process.reset();
         return false;
@@ -56,14 +59,13 @@ bool XrayController::start(const QString& configPath)
 
 void XrayController::stop()
 {
-    if (!m_process.isNull()) {
-        if (m_process->state() == QProcess::Running) {
-            Logger::getInstance().info(QString("Stopping Xray process (PID: %1)").arg(m_process->processId()));
-            m_process->terminate();
-            if (!m_process->waitForFinished(5000)) {
-                Logger::getInstance().warning("Xray process did not terminate gracefully, forcing kill");
-                m_process->kill();
-            }
+    if (!m_process.isNull())
+    {
+        if (m_process->state() == QProcess::Running)
+        {
+            Logger::getInstance().info(QString("Killing Xray process (PID: %1)").arg(m_process->processId()));
+            m_process->kill();
+            m_process->waitForFinished(3000);
         }
         m_process.reset();
         Logger::getInstance().info("Xray process stopped");
@@ -82,7 +84,8 @@ qint64 XrayController::getProcessId() const
 
 QString XrayController::getError() const
 {
-    if (m_process && m_process->error() != QProcess::UnknownError) {
+    if (m_process && m_process->error() != QProcess::UnknownError)
+    {
         QString error = m_process->errorString();
         Logger::getInstance().error(QString("Xray process error: %1").arg(error));
         return error;
@@ -94,7 +97,7 @@ QString XrayController::getXrayExecutablePath() const
 {
     QString xrayDir = QCoreApplication::applicationDirPath();
     QString xrayPath;
-    
+
 #if defined(Q_OS_WIN)
     xrayPath = QDir(xrayDir).filePath("xray.exe");
 #else
@@ -105,9 +108,9 @@ QString XrayController::getXrayExecutablePath() const
     return xrayPath;
 }
 
-QStringList XrayController::getXrayArguments(const QString& configPath) const
+QStringList XrayController::getXrayArguments(const QString &configPath) const
 {
     QStringList args = QStringList() << "-c" << configPath << "-format=json";
     Logger::getInstance().debug(QString("Xray arguments: %1").arg(args.join(' ')));
     return args;
-} 
+}
