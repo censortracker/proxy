@@ -24,6 +24,7 @@ public:
     QJsonObject getActiveConfig() const override;
     bool updateAllConfigs(const QStringList &serializedConfigs) override;
     QString getActiveConfigUuid() const;
+    int getConfigCount() const override;
 
     bool startXray() override;
     bool stopXray() override;

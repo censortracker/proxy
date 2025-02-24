@@ -22,6 +22,7 @@ public:
     QMap<QString, QJsonObject> getAllConfigs() const;
     QMap<QString, QJsonObject> getConfigsByUuids(const QStringList &uuids) const;
     QString getActiveConfigPath() const;
+    int getConfigCount() const { return m_configCount; }
 
 private:
     // File paths
@@ -41,4 +42,5 @@ private:
     QJsonObject addInbounds(const QJsonObject &config);
 
     QString m_activeConfigUuid;
+    int m_configCount{0};
 }; 

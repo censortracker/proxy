@@ -17,10 +17,13 @@ ConfigManager::ConfigManager()
     Logger::getInstance().debug(QString("Ensuring config directory exists: %1").arg(configPath));
     QDir().mkpath(configPath);
 
-    // Read active config UUID
+    // Read active config UUID and initialize config count
     QJsonObject configsInfo = readConfigsInfo();
     m_activeConfigUuid = configsInfo["activeConfigUuid"].toString();
-    Logger::getInstance().info(QString("Active config UUID: %1").arg(m_activeConfigUuid.isEmpty() ? "none" : m_activeConfigUuid));
+    m_configCount = configsInfo["configs"].toObject().size();
+    Logger::getInstance().info(QString("Active config UUID: %1, Total configs: %2")
+        .arg(m_activeConfigUuid.isEmpty() ? "none" : m_activeConfigUuid)
+        .arg(m_configCount));
 }
 
 QString ConfigManager::getConfigsPath() const
@@ -80,6 +83,9 @@ bool ConfigManager::writeConfigsInfo(const QJsonObject &configsInfo)
         Logger::getInstance().error(QString("Failed to open configs info file for writing: %1").arg(file.errorString()));
         return false;
     }
+
+    m_configCount = configsInfo["configs"].toObject().size();
+    Logger::getInstance().debug(QString("Updated config count: %1").arg(m_configCount));
 
     QJsonDocument doc(configsInfo);
     file.write(doc.toJson(QJsonDocument::Indented));

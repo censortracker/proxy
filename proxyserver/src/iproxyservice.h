@@ -17,6 +17,7 @@ public:
     virtual bool activateConfig(const QString &uuid) = 0;
     virtual QJsonObject getActiveConfig() const = 0;
     virtual bool updateAllConfigs(const QStringList &serializedConfigs) = 0;
+    virtual int getConfigCount() const = 0;
 
     // Xray process operations
     virtual bool startXray() = 0;

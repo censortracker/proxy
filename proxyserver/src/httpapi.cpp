@@ -173,6 +173,7 @@ QJsonObject HttpApi::handleGetPing() const
     if (auto service = m_service.lock()) {
         bool isRunning = service->isXrayRunning();
         response["xray_running"] = isRunning;
+        response["config_count"] = service->getConfigCount();
         
         if (isRunning) {
             qint64 pid = service->getXrayProcessId();

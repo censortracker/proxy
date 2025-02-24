@@ -164,4 +164,9 @@ bool ProxyService::updateAllConfigs(const QStringList &serializedConfigs)
 QString ProxyService::getActiveConfigUuid() const
 {
     return m_configManager->getActiveConfigUuid();
+}
+
+int ProxyService::getConfigCount() const
+{
+    return m_configManager->getConfigCount();
 } 
