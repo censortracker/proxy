@@ -34,6 +34,7 @@ public:
 
 signals:
     void configsChanged();
+    void xrayStatusChanged(bool running);
 
 private:
     QScopedPointer<ConfigManager> m_configManager;

@@ -34,6 +34,7 @@ bool ProxyService::startXray()
     bool success = m_xrayController->start(m_configManager->getActiveConfigPath());
     if (success) {
         Logger::getInstance().info("Xray started successfully");
+        emit xrayStatusChanged(true);
     } else {
         Logger::getInstance().error("Failed to start Xray");
     }
@@ -45,6 +46,7 @@ bool ProxyService::stopXray()
     Logger::getInstance().info("Stopping Xray");
     m_xrayController->stop();
     Logger::getInstance().info("Xray stopped");
+    emit xrayStatusChanged(false);
     return true;
 }
 

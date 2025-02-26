@@ -15,6 +15,7 @@ ProxyServer::ProxyServer(QObject *parent)
     connect(&m_trayIcon, &TrayIcon::quitRequested, this, &ProxyServer::quit);
     connect(&m_trayIcon, &TrayIcon::configSelected, this, &ProxyServer::onConfigSelected);
     connect(m_service.data(), &ProxyService::configsChanged, this, &ProxyServer::updateTrayConfigsMenu);
+    connect(m_service.data(), &ProxyService::xrayStatusChanged, &m_trayIcon, &TrayIcon::updateStatus);
 }
 
 ProxyServer::~ProxyServer()
@@ -55,16 +56,12 @@ void ProxyServer::stop()
 bool ProxyServer::startXrayProcess()
 {
     bool success = m_service->startXray();
-    if (success) {
-        m_trayIcon.updateStatus(true);
-    }
     return success;
 }
 
 void ProxyServer::stopXrayProcess()
 {
     m_service->stopXray();
-    m_trayIcon.updateStatus(false);
 }
 
 void ProxyServer::quit()

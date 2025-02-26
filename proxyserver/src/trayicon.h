@@ -16,10 +16,12 @@ public:
     explicit TrayIcon(QObject *parent = nullptr);
     ~TrayIcon() = default;
 
-    void updateStatus(bool isActive);
     void updateConfigsMenu(const QMap<QString, QJsonObject>& configs, const QString& activeConfigUuid);
     void updatePorts(quint16 proxyPort, quint16 httpPort);
     void updateError(const QString &errorMessage);
+
+public slots:
+    void updateStatus(bool isActive);
 
 signals:
     void quitRequested();
