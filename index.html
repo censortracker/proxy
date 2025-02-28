@@ -13,37 +13,6 @@
   <meta property="og:locale" content="en_US">
   <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .moon {
-      width: 20px;
-      height: 20px;
-      background-color: black;
-      border-radius: 50%;
-      position: relative;
-      display: inline-block;
-      overflow: hidden;
-    }
-    .moon::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      right: 7px;
-      width: 20px;
-      height: 17px;
-      background-color: white;
-      border-radius: 50%;
-    }
-
-    .sun {
-      width: 20px;
-      height: 20px;
-      background-color: #ffe066;
-      border-radius: 50%;
-      position: relative;
-      display: inline-block;
-      box-shadow: 0 0 10px #ffe066, 0 0 20px #ffcc00, 0 0 30px #ffaa00;
-    }
-  </style>
 </head>
 <body class="text-gray-900 bg-white dark:bg-[#181818] transition-colors duration-300">
   <div class="max-w-screen-xl mx-auto px-5 sm:px-10 py-0 sm:py-5">
@@ -78,51 +47,53 @@
     </main>
   </div>
   <script>
-    const languageToggle = document.getElementById('language-toggle');
-    const languageText = document.getElementById('language-text');
-    const downloadWin = document.getElementById('downloadWin');
+    (() => {
+      const languageToggle = document.getElementById('language-toggle');
+      const languageText = document.getElementById('language-text');
+      const downloadWin = document.getElementById('downloadWin');
 
-    downloadWin.addEventListener('click', () => {
-      window.open('https://github.com/censortracker/proxy/releases', '_blank');
-    })
+      downloadWin.addEventListener('click', () => {
+        window.open('https://github.com/censortracker/proxy/releases', '_blank');
+      })
 
-    function changeLanguage(lang) {
-      const langData = {
-        en: {
-          title: "Censor Tracker Proxy",
-          description: "App plugin for working with a local proxy. Works together with the Censor Tracker extension",
-          language: "RU",
-          downloadWin: "Download for Windows",
-        },
-        ru: {
-          title: "Censor Tracker Proxy",
-          description: "Приложение-плагин для работы локального прокси. Работает вместе с расширением Censor Tracker",
-          language: "EN",
-          downloadWin: "Скачать для Windows",
-        }
+      function changeLanguage(lang) {
+        const langData = {
+          en: {
+            title: "Censor Tracker Proxy",
+            description: "App plugin for working with a local proxy. Works together with the Censor Tracker extension",
+            language: "RU",
+            downloadWin: "Download for Windows",
+          },
+          ru: {
+            title: "Censor Tracker Proxy",
+            description: "Приложение-плагин для работы локального прокси. Работает вместе с расширением Censor Tracker",
+            language: "EN",
+            downloadWin: "Скачать для Windows",
+          }
+        };
+
+        document.getElementById('main-title').innerText = langData[lang].title;
+        document.getElementById('main-description').innerText = langData[lang].description;
+        document.getElementById('downloadWin').innerText = langData[lang].downloadWin;
+        languageText.innerText = langData[lang].language;
+
+        localStorage.setItem('language', lang);
+      }
+
+      window.onload = function() {
+        const savedLanguage = localStorage.getItem('language') || 'en';
+        changeLanguage(savedLanguage);
       };
 
-      document.getElementById('main-title').innerText = langData[lang].title;
-      document.getElementById('main-description').innerText = langData[lang].description;
-      document.getElementById('downloadWin').innerText = langData[lang].downloadWin;
-      languageText.innerText = langData[lang].language;
-
-      localStorage.setItem('language', lang);
-    }
-
-    window.onload = function() {
-      const savedLanguage = localStorage.getItem('language') || 'en';
-      changeLanguage(savedLanguage);
-    };
-
-    languageToggle.addEventListener('click', () => {
-      const currentLanguage = languageText.innerText;
-      if (currentLanguage === 'RU') {
-        changeLanguage('ru');
-      } else {
-        changeLanguage('en');
-      }
-    });
+      languageToggle.addEventListener('click', () => {
+        const currentLanguage = languageText.innerText;
+        if (currentLanguage === 'RU') {
+          changeLanguage('ru');
+        } else {
+          changeLanguage('en');
+        }
+      });
+    })()
   </script>
 </body>
 </html>
