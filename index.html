@@ -1,99 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Censor Tracker Proxy</title>
-  <meta property="og:title" content="Censor Tracker Proxy">
-  <meta property="og:description" content="App plugin for working with a local proxy. Works together with the Censor Tracker extension.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://censortracker.org">
-  <meta property="og:image" content="https://censortracker.org/static/img/preview.png">
-  <meta property="og:site_name" content="Censor Tracker Proxy">
-  <meta property="og:locale" content="en_US">
-  <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
-  <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Censor Tracker Proxy</title>
+    <meta property="og:title" content="Censor Tracker Proxy">
+    <meta property="og:description"
+          content="App plugin for working with a local proxy. Works together with the Censor Tracker extension.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://censortracker.org">
+    <meta property="og:image" content="https://censortracker.org/static/img/preview.png">
+    <meta property="og:site_name" content="Censor Tracker Proxy">
+    <meta property="og:locale" content="en_US">
+    <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="text-gray-900 bg-white dark:bg-[#181818] transition-colors duration-300">
-  <div class="max-w-screen-xl mx-auto px-5 sm:px-10 py-0 sm:py-5">
+<div class="max-w-screen-xl mx-auto px-5 sm:px-10 py-0 sm:py-5">
     <header class="flex justify-between items-center py-6 px-2">
-      <img src="./images/logo.svg" alt="Logo" class="w-10 h-10">
-      <nav class="flex gap-6 text-gray-500 dark:text-[#bcbcbc] text-sm">
-        <button id="language-toggle" class="flex items-start">
-          <span id="language-text" class="hover:text-[#5173D3]">EN</span>
-        </button>
-      </nav>
+        <a href="https://censortracker.org">
+            <img src="./images/logo.svg" alt="Logo" class="w-10 h-10">
+        </a>
+        <nav class="flex gap-6 text-gray-500 dark:text-[#bcbcbc] text-sm">
+            <button id="language-toggle" class="flex items-start">
+                <span id="language-text" class="hover:text-[#5173D3]">EN</span>
+            </button>
+        </nav>
     </header>
     <main class="text-center my-10">
-      <div class="flex justify-center">
-        <img src="./images/bg.svg" alt="Censor Tracker Proxy" width="600">
-      </div>
-
-      <div class="max-w-[600px] m-auto">
-        <h1 id="main-title" class="text-3xl sm:text-6xl font-bold text-[#23272D] dark:text-white">Censor Tracker Proxy</h1>
-        <p id="main-description" class="text-[#555555] dark:text-[#bcbcbc] mt-2 sm:mt-4 text-sm sm:text-lg">
-          Приложение-плагин для работы локального прокси. Работает вместе с расширением Censor Tracker
-        </p>
-        <div class="mt-5 sm:mt-9">
-          <button id="downloadWin" class="bg-[#5173D3] text-sm sm:text-lg text-white px-5 py-2 rounded-lg shadow hover:bg-blue-600">
-            Скачать для Windows
-          </button>
+        <div class="flex justify-center">
+            <a href="https://github.com/censortracker/proxy">
+                <img src="./images/bg.svg" alt="Censor Tracker Proxy" width="800">
+            </a>
         </div>
-<!--        <div class="mt-5 flex justify-center gap-4 text-[15px] text-[#5173D3]">-->
-<!--          <a href="#" class="hover:underline">Linux</a>-->
-<!--          <a href="#" class="hover:underline">MacOS</a>-->
-<!--        </div>-->
-      </div>
+
+        <div class="max-w-[600px] m-auto">
+            <h1 id="main-title" class="text-3xl sm:text-6xl font-bold text-[#23272D] dark:text-white">Censor Tracker
+                Proxy</h1>
+            <p id="main-description" class="text-[#555555] dark:text-[#bcbcbc] mt-2 sm:mt-4 text-sm sm:text-lg">
+                Клиент, который интегрируется с расширением Censor Tracker, позволяя использовать прокси Xray (Vless,
+                Vmess и Shadowsocks) прямо из вашего браузера.
+            </p>
+            <div class="mt-5 sm:mt-9">
+                <button id="downloadWin"
+                        class="bg-[#5173D3] text-sm sm:text-lg text-white px-5 py-2 rounded-lg shadow hover:bg-blue-600">
+                    Скачать для Windows
+                </button>
+            </div>
+            <!--        <div class="mt-5 flex justify-center gap-4 text-[15px] text-[#5173D3]">-->
+            <!--          <a href="#" class="hover:underline">Linux</a>-->
+            <!--          <a href="#" class="hover:underline">MacOS</a>-->
+            <!--        </div>-->
+        </div>
     </main>
-  </div>
-  <script>
+</div>
+<script>
     (() => {
-      const languageToggle = document.getElementById('language-toggle');
-      const languageText = document.getElementById('language-text');
-      const downloadWin = document.getElementById('downloadWin');
+        const languageToggle = document.getElementById('language-toggle');
+        const languageText = document.getElementById('language-text');
+        const downloadWin = document.getElementById('downloadWin');
 
-      downloadWin.addEventListener('click', () => {
-        window.open('https://github.com/censortracker/proxy/releases', '_blank');
-      })
+        downloadWin.addEventListener('click', () => {
+            window.open('https://github.com/censortracker/proxy/releases', '_blank');
+        })
 
-      function changeLanguage(lang) {
-        const langData = {
-          en: {
-            title: "Censor Tracker Proxy",
-            description: "App plugin for working with a local proxy. Works together with the Censor Tracker extension",
-            language: "RU",
-            downloadWin: "Download for Windows",
-          },
-          ru: {
-            title: "Censor Tracker Proxy",
-            description: "Приложение-плагин для работы локального прокси. Работает вместе с расширением Censor Tracker",
-            language: "EN",
-            downloadWin: "Скачать для Windows",
-          }
+        function changeLanguage(lang) {
+            const langData = {
+                en: {
+                    title: "Censor Tracker Proxy",
+                    description: "A lightweight client that integrates with the Censor Tracker browser extension to enable the use of Xray's proxies (Vless, Vmess and Shadowsocks) directly from your browser.",
+                    language: "RU",
+                    downloadWin: "Download for Windows",
+                },
+                ru: {
+                    title: "Censor Tracker Proxy",
+                    description: "Клиент, который интегрируется с расширением Censor Tracker, позволяя использовать прокси Xray (Vless, Vmess и Shadowsocks) прямо из вашего браузера.",
+                    language: "EN",
+                    downloadWin: "Скачать для Windows",
+                }
+            };
+
+            document.getElementById('main-title').innerText = langData[lang].title;
+            document.getElementById('main-description').innerText = langData[lang].description;
+            document.getElementById('downloadWin').innerText = langData[lang].downloadWin;
+            languageText.innerText = langData[lang].language;
+
+            localStorage.setItem('language', lang);
+        }
+
+        window.onload = function () {
+            const savedLanguage = localStorage.getItem('language') || 'en';
+            changeLanguage(savedLanguage);
         };
 
-        document.getElementById('main-title').innerText = langData[lang].title;
-        document.getElementById('main-description').innerText = langData[lang].description;
-        document.getElementById('downloadWin').innerText = langData[lang].downloadWin;
-        languageText.innerText = langData[lang].language;
-
-        localStorage.setItem('language', lang);
-      }
-
-      window.onload = function() {
-        const savedLanguage = localStorage.getItem('language') || 'en';
-        changeLanguage(savedLanguage);
-      };
-
-      languageToggle.addEventListener('click', () => {
-        const currentLanguage = languageText.innerText;
-        if (currentLanguage === 'RU') {
-          changeLanguage('ru');
-        } else {
-          changeLanguage('en');
-        }
-      });
+        languageToggle.addEventListener('click', () => {
+            const currentLanguage = languageText.innerText;
+            if (currentLanguage === 'RU') {
+                changeLanguage('ru');
+            } else {
+                changeLanguage('en');
+            }
+        });
     })()
-  </script>
+</script>
 </body>
 </html>
