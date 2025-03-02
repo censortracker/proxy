@@ -288,7 +288,7 @@ bool ConfigManager::addConfigs(const QStringList &serializedConfigs)
         return false;
     }
 
-    // If there's no active config, activate the first added one
+    // If there's no active config, activate the first added one    
     if (activeUuid.isEmpty() && !firstUuid.isEmpty())
     {
         Logger::getInstance().info(QString("No active config, activating first added config: %1").arg(firstUuid));
@@ -316,12 +316,25 @@ bool ConfigManager::removeConfig(const QString &uuid)
         .arg(configToRemove["name"].toString())
         .arg(configToRemove["protocol"].toString()));
 
+    // Store current active config UUID
+    bool needToActivateNew = (getActiveConfigUuid() == uuid);
+    
+    // Remove config from the list
     configs.remove(uuid);
-
-    // If removing active config, activate another one first   
-    if (getActiveConfigUuid() == uuid)
+    
+    // Save updated configs list (without changing activeConfigUuid)
+    configsInfo["configs"] = configs;
+    Logger::getInstance().debug("Writing updated configs info to file");
+    if (!writeConfigsInfo(configsInfo))
     {
-        Logger::getInstance().info("Removing active config, need to activate another one");
+        Logger::getInstance().error("Failed to write configs info");
+        return false;
+    }
+    
+    // If active config was removed, activate a new one
+    if (needToActivateNew)
+    {
+        Logger::getInstance().info("Removed active config, need to activate a new one");
         if (configs.isEmpty())
         {
             Logger::getInstance().info("No configs left, clearing active config");
@@ -342,10 +355,8 @@ bool ConfigManager::removeConfig(const QString &uuid)
             }
         }
     }
-
-    configsInfo["configs"] = configs;
-    Logger::getInstance().debug("Writing updated configs info to file");
-    return writeConfigsInfo(configsInfo);
+    
+    return true;
 }
 
 bool ConfigManager::activateConfig(const QString &uuid)
