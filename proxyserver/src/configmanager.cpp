@@ -142,6 +142,25 @@ bool ConfigManager::writeActiveConfig(const QJsonObject &config)
     return true;
 }
 
+bool ConfigManager::removeActiveConfigFile()
+{
+    Logger::getInstance().info("Removing active config file");
+    QFile file(getActiveConfigPath());
+    
+    if (file.exists()) {
+        if (file.remove()) {
+            Logger::getInstance().debug("Successfully removed active config file");
+            return true;
+        } else {
+            Logger::getInstance().error(QString("Failed to remove active config file: %1").arg(file.errorString()));
+            return false;
+        }
+    }
+    
+    Logger::getInstance().debug("Active config file does not exist, nothing to remove");
+    return true;
+}
+
 QString ConfigManager::generateUuid() const
 {
     return QUuid::createUuid().toString(QUuid::WithoutBraces);
@@ -379,7 +398,16 @@ bool ConfigManager::activateConfig(const QString &uuid)
         m_activeConfigUuid = QString();
         configsInfo["activeConfigUuid"] = QString();
         configsInfo["configs"] = configs;
-        return writeConfigsInfo(configsInfo);
+        
+        // Write changes to the configs info file
+        if (!writeConfigsInfo(configsInfo)) {
+            Logger::getInstance().error("Failed to write configs info file");
+            return false;
+        }
+        
+        // Remove the active config file
+        Logger::getInstance().debug("Removing active config file");
+        return removeActiveConfigFile();
     }
 
     // Check if config exists

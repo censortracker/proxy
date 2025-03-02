@@ -34,6 +34,7 @@ private:
     bool writeConfigsInfo(const QJsonObject &configsInfo);
     QJsonObject readActiveConfig() const;
     bool writeActiveConfig(const QJsonObject &config);
+    bool removeActiveConfigFile();
 
     // Helper methods
     QString generateUuid() const;
